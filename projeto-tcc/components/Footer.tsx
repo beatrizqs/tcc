@@ -1,13 +1,19 @@
+"use client";
+
+import { Gear } from "phosphor-react";
+
 export default function Footer() {
   return (
     <footer className="w-full pt-[1.5px] bg-linear-to-r from-blue-strong to-purple-strong">
-      <div className="w-full px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 bg-white">
-        <span className="text-sm text-slate-500">
-          © {new Date().getFullYear()} Beatriz Schmitt
+      <div className="relative w-full px-6 py-3 flex items-center bg-white">
+        <Gear size={32} weight="fill" className="text-blue-strong" />
+
+        <span className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-blue-strong font-title">
+          Lorem Ipsum
         </span>
 
-        <span className="text-sm text-slate-500">
-          Desenvolvido por Beatriz Schmitt
+        <span className="ml-auto text-sm text-blue-strong font-subtitle">
+          © {new Date().getFullYear()} Beatriz Schmitt
         </span>
       </div>
     </footer>
