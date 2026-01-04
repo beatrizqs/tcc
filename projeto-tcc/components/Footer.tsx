@@ -4,9 +4,11 @@ import { Gear } from "phosphor-react";
 
 export default function Footer() {
   return (
-    <footer className="w-full pt-[1.5px] bg-linear-to-r from-blue-strong to-purple-strong">
+    <footer className="w-full pt-[1.5px] bg-linear-to-r from-blue-strong to-purple-strong hidden md:flex">
       <div className="relative w-full px-6 py-3 flex items-center bg-white">
-        <Gear size={32} weight="fill" className="text-blue-strong" />
+        <button className="hover:cursor-pointer">
+          <Gear size={32} weight="fill" className="text-blue-strong" />
+        </button>
 
         <span className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-blue-strong font-title">
           Lorem Ipsum
