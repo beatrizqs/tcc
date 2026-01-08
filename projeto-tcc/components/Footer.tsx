@@ -1,14 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { Gear } from "phosphor-react";
 
 export default function Footer() {
   return (
-    <footer className="w-full pt-[1.5px] bg-linear-to-r from-blue-strong to-purple-strong hidden md:flex">
+    <footer className="fixed bottom-0 w-full pt-[1.5px] bg-linear-to-r from-blue-strong to-purple-strong hidden md:flex">
       <div className="relative w-full px-6 py-3 flex items-center bg-white">
-        <button className="hover:cursor-pointer">
+        <Link href="/configuracoes">
           <Gear size={32} weight="fill" className="text-blue-strong" />
-        </button>
+        </Link>
 
         <span className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-blue-strong font-title">
           Lorem Ipsum

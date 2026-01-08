@@ -8,7 +8,7 @@ import { useState } from "react";
 function HeaderDesktop() {
   const pathname = usePathname();
   return (
-    <header className="w-full shadow-md bg-linear-to-r from-blue-strong to-purple-strong hidden md:block">
+    <header className="fixed w-full shadow-md bg-linear-to-r from-blue-strong to-purple-strong hidden md:block">
       <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
         <Link href="/" className="text-lg font-semibold text-white font-title">
           Lorem Ipsum
@@ -61,12 +61,12 @@ function HeaderMobile() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="md:hidden flex flex-col">
+    <div className="md:hidden flex flex-col fixed">
       {/* Header */}
       <header className="fixed top-0 left-0 w-full h-12 shadow-md bg-linear-to-r from-blue-strong to-purple-strong z-50 flex items-center justify-between px-4">
-        <button className="hover:cursor-pointer">
+        <Link href="/configuracoes">
           <Gear size={24} weight="fill" className="text-white" />
-        </button>
+        </Link>
 
         <Link
           href="/"

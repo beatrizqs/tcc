@@ -15,7 +15,7 @@ const barlow = Barlow({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700"],
   variable: "--font-barlow",
-})
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,10 +39,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className={`min-h-screen flex flex-col ${amaranth.variable} ${barlow.variable}`}>
+      <body
+        className={`
+          min-h-screen
+          ${amaranth.variable}
+          ${barlow.variable}
+        `}
+      >
         <Header />
 
-        <main className="flex-1">
+        <main
+          className="pt-16 pb-14 px-3 md:px-6 min-h-screen"
+        >
           {children}
         </main>
 

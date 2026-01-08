@@ -14,6 +14,9 @@
   --color-blue-strong: oklch(0.3461 0.2064 262.97);
   --color-blue-light: oklch(0.578 0.2193 262.97);
   --color-blue-pastel: oklch(0.7049 0.1447 262.97);
+  --color-red-strong: oklch(0.5078 0.1965 28.99);
+  --color-red-light: oklch(0.6049 0.162 28.99);
+  --color-red-pastel: oklch(0.6402 0.1324 28.99);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-title: var(--font-amaranth);
