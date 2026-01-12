@@ -3,20 +3,58 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --blue-strong: oklch(0.3167 0.2088 262.97);
+  --blue-light:  oklch(0.4537 0.2193 262.97);
+  --blue-pastel: oklch(0.6108 0.1348 262.97);
+
+  --purple-strong: oklch(0.3461 0.1817 306.71);
+  --purple-light:  oklch(0.4353 0.1899 306.71);
+  --purple-pastel: oklch(0.6167 0.1398 306.71);
+
+  --red-strong: oklch(0.4167 0.2162 25.06);
+  --red-light:  oklch(0.5667 0.2335 25.06);
+  --red-pastel: oklch(0.6814 0.1348 25.06);
+
+  --color-blue: var(--blue-light);
+  --color-purple: var(--purple-light);
+  --color-red: var(--red-light);
+}
+
+:root[data-contrast="low"] {
+  --color-blue: var(--blue-pastel);
+  --color-purple: var(--purple-pastel);
+  --color-red: var(--red-pastel);
+}
+
+:root[data-contrast="medium"] {
+  --color-blue: var(--blue-light);
+  --color-purple: var(--purple-light);
+  --color-red: var(--red-light);
+}
+
+:root[data-contrast="high"] {
+  --color-blue: var(--blue-strong);
+  --color-purple: var(--purple-strong);
+  --color-red: var(--red-strong);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-purple-strong: oklch(0.3911 0.1842 313.06);
-  --color-purple-light: oklch(0.5424 0.2088 305.65);
-  --color-purple-pastel: oklch(0.6868 0.2088 305.65);
-  --color-blue-strong: oklch(0.3461 0.2064 262.97);
-  --color-blue-light: oklch(0.578 0.2193 262.97);
-  --color-blue-pastel: oklch(0.7049 0.1447 262.97);
-  --color-red-strong: oklch(0.5078 0.1965 28.99);
-  --color-red-light: oklch(0.6049 0.162 28.99);
-  --color-red-pastel: oklch(0.6402 0.1324 28.99);
+
+  --color-blue: var(--color-blue);
+  --color-purple: var(--color-purple);
+  --color-red: var(--color-red);
+
+  --color-preview-blue-strong: var(--blue-strong);
+  --color-preview-purple-strong: var(--purple-strong);
+  --color-preview-red-strong: var(--red-strong);
+
+  --color-preview-blue-pastel: var(--blue-pastel);
+  --color-preview-purple-pastel: var(--purple-pastel);
+  --color-preview-red-pastel: var(--red-pastel);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-title: var(--font-amaranth);

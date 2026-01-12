@@ -1,5 +1,6 @@
 "use client";
 
+import { useSettings } from "@/contexts/SettingsContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Gear, List, X } from "phosphor-react";
@@ -7,11 +8,44 @@ import { useState } from "react";
 
 function HeaderDesktop() {
   const pathname = usePathname();
+
+  const { language } = useSettings();
+
+  const translations = {
+    pt: {
+      title: "Lorem Ipsum",
+      numericalBases: "Bases numéricas",
+      binaryArithmetic: "Aritmética binária",
+      imageCompression: "Compressão de imagens",
+      cryptography: "Criptografia",
+    },
+    en: {
+      title: "Lorem Ipsum",
+      numericalBases: "Numerical bases",
+      binaryArithmetic: "Binary arithmetic",
+      imageCompression: "Image compression",
+      cryptography: "Cryptography",
+    },
+    es: {
+      title: "Lorem Ipsum",
+      numericalBases: "Bases numéricas",
+      binaryArithmetic: "Aritmética binaria",
+      imageCompression: "Compresión de imágenes",
+      cryptography: "Criptografía",
+    },
+  } as const;
+
+  const titulo = translations[language].title;
+  const basesNumericas = translations[language].numericalBases;
+  const aritmeticaBinaria = translations[language].binaryArithmetic;
+  const compressaoImagens = translations[language].imageCompression;
+  const criptografia = translations[language].cryptography;
+
   return (
-    <header className="fixed w-full shadow-md bg-linear-to-r from-blue-strong to-purple-strong hidden md:block">
+    <header className="fixed w-full shadow-md bg-linear-to-r from-blue to-purple hidden md:block z-100">
       <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
         <Link href="/" className="text-lg font-semibold text-white font-title">
-          Lorem Ipsum
+          {titulo}
         </Link>
 
         <nav className="flex items-center gap-6 font-common font-light">
@@ -21,7 +55,7 @@ function HeaderDesktop() {
               pathname === "/bases-numericas" && "underline"
             }`}
           >
-            Bases numéricas
+            {basesNumericas}
           </Link>
 
           <Link
@@ -30,7 +64,7 @@ function HeaderDesktop() {
               pathname === "/aritmetica-binaria" && "underline"
             }`}
           >
-            Aritmética binária
+            {aritmeticaBinaria}
           </Link>
 
           <Link
@@ -39,7 +73,7 @@ function HeaderDesktop() {
               pathname === "/compressao-imagens" && "underline"
             }`}
           >
-            Compressão de imagens
+            {compressaoImagens}
           </Link>
 
           <Link
@@ -48,7 +82,7 @@ function HeaderDesktop() {
               pathname === "/criptografia" && "underline"
             }`}
           >
-            Criptografia
+            {criptografia}
           </Link>
         </nav>
       </div>
@@ -61,9 +95,9 @@ function HeaderMobile() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="md:hidden flex flex-col fixed">
+    <div className="md:hidden flex flex-col fixed z-100">
       {/* Header */}
-      <header className="fixed top-0 left-0 w-full h-12 shadow-md bg-linear-to-r from-blue-strong to-purple-strong z-50 flex items-center justify-between px-4">
+      <header className="fixed top-0 left-0 w-full h-12 shadow-md bg-linear-to-r from-blue to-purple z-50 flex items-center justify-between px-4">
         <Link href="/configuracoes">
           <Gear size={24} weight="fill" className="text-white" />
         </Link>
