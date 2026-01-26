@@ -85,7 +85,7 @@ export default function Configuracoes() {
     <div className="flex flex-col items-center">
       <PageTitle title={title} />
 
-      <div className="flex flex-col gap-4 w-full items-center">
+      <div className="flex flex-col gap-4 2xl:gap-12 w-full items-center">
         {/* Zoom */}
         <div className="flex flex-col w-[80%] max-w-[700px]">
           <p className="font-common font-medium">Zoom</p>

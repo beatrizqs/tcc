@@ -3,7 +3,7 @@
 import { useSettings } from "@/contexts/SettingsContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Gear, List, X } from "phosphor-react";
+import { List, SlidersHorizontal, X } from "phosphor-react";
 import { useState } from "react";
 
 function HeaderDesktop() {
@@ -43,7 +43,7 @@ function HeaderDesktop() {
 
   return (
     <header className="fixed w-full shadow-md bg-linear-to-r from-blue to-purple hidden md:block z-100">
-      <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
+      <div className="mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="text-lg font-semibold text-white font-title">
           {titulo}
         </Link>
@@ -84,6 +84,10 @@ function HeaderDesktop() {
           >
             {criptografia}
           </Link>
+
+          <Link href="/configuracoes">
+            <SlidersHorizontal size={24} weight="fill" className="text-white ml-10" />
+          </Link>
         </nav>
       </div>
     </header>
@@ -99,7 +103,7 @@ function HeaderMobile() {
       {/* Header */}
       <header className="fixed top-0 left-0 w-full h-12 shadow-md bg-linear-to-r from-blue to-purple z-50 flex items-center justify-between px-4">
         <Link href="/configuracoes">
-          <Gear size={24} weight="fill" className="text-white" />
+          <SlidersHorizontal size={24} weight="fill" className="text-white" />
         </Link>
 
         <Link

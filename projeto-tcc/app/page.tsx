@@ -60,7 +60,7 @@ export default function Home() {
     <div className="flex flex-col items-center">
       <PageTitle title={titulo} subtitle={subtitulo} />
 
-      <div className="grid grid-cols-3 gap-x-10 gap-y-7">
+      <div className="gap-x-10 gap-y-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 2xl:gap-20 my-5 2xl:my-10">
         <FeatureCard
           name={basesNumericas}
           imgPath="/images/bases-numericas.png"
@@ -82,7 +82,7 @@ export default function Home() {
           href="/compressao-imagens"
         />
 
-        <div className="col-start-2">
+        <div className="col-start-1 sm:col-start-2 2xl:col-start-4">
           <FeatureCard
             name={criptografia}
             imgPath="/images/criptografia.png"
