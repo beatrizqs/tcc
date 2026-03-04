@@ -1,6 +1,5 @@
 "use client";
 
-import { useSettings } from "@/contexts/SettingsContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { List, SlidersHorizontal, X } from "phosphor-react";
@@ -9,43 +8,11 @@ import { useState } from "react";
 function HeaderDesktop() {
   const pathname = usePathname();
 
-  const { language } = useSettings();
-
-  const translations = {
-    pt: {
-      title: "Lorem Ipsum",
-      numericalBases: "Bases numéricas",
-      binaryArithmetic: "Aritmética binária",
-      imageCompression: "Compressão de imagens",
-      cryptography: "Criptografia",
-    },
-    en: {
-      title: "Lorem Ipsum",
-      numericalBases: "Numerical bases",
-      binaryArithmetic: "Binary arithmetic",
-      imageCompression: "Image compression",
-      cryptography: "Cryptography",
-    },
-    es: {
-      title: "Lorem Ipsum",
-      numericalBases: "Bases numéricas",
-      binaryArithmetic: "Aritmética binaria",
-      imageCompression: "Compresión de imágenes",
-      cryptography: "Criptografía",
-    },
-  } as const;
-
-  const titulo = translations[language].title;
-  const basesNumericas = translations[language].numericalBases;
-  const aritmeticaBinaria = translations[language].binaryArithmetic;
-  const compressaoImagens = translations[language].imageCompression;
-  const criptografia = translations[language].cryptography;
-
   return (
     <header className="fixed w-full shadow-md bg-linear-to-r from-blue to-purple hidden md:block z-100">
       <div className="mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="text-lg font-semibold text-white font-title">
-          {titulo}
+          Lorem Ipsum
         </Link>
 
         <nav className="flex items-center gap-6 font-common font-light">
@@ -55,7 +22,7 @@ function HeaderDesktop() {
               pathname === "/bases-numericas" && "underline"
             }`}
           >
-            {basesNumericas}
+            Bases numéricas
           </Link>
 
           <Link
@@ -64,7 +31,7 @@ function HeaderDesktop() {
               pathname === "/aritmetica-binaria" && "underline"
             }`}
           >
-            {aritmeticaBinaria}
+            Aritmética binária
           </Link>
 
           <Link
@@ -73,7 +40,7 @@ function HeaderDesktop() {
               pathname === "/compressao-imagens" && "underline"
             }`}
           >
-            {compressaoImagens}
+            Compressão de imagens
           </Link>
 
           <Link
@@ -82,7 +49,7 @@ function HeaderDesktop() {
               pathname === "/criptografia" && "underline"
             }`}
           >
-            {criptografia}
+            Criptografia
           </Link>
 
           <Link href="/configuracoes">

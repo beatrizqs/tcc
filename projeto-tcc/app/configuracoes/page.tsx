@@ -1,15 +1,14 @@
 "use client";
 
 import Button from "@/components/Button";
-import PageTitle from "@/components/PageTitle";
+import MainPageTitle from "@/components/MainPageTitle";
 import {
   FormControl,
-  FormControlLabel,
   Radio,
   RadioGroup,
   Slider,
 } from "@mui/material";
-import { Language, useSettings } from "@/contexts/SettingsContext";
+import { useSettings } from "@/contexts/SettingsContext";
 
 type ContrastLevel = "low" | "medium" | "high";
 
@@ -70,20 +69,12 @@ function ContrastCard({
 }
 
 export default function Configuracoes() {
-  const { zoom, contrast, language, setZoom, setContrast, setLanguage, reset } =
+  const { zoom, contrast, setZoom, setContrast, reset } =
     useSettings();
-
-  const titles = {
-    pt: { settings: "Configurações" },
-    en: { settings: "Settings" },
-    es: { settings: "Configuración" },
-  };
-
-  const title = titles[language].settings;
 
   return (
     <div className="flex flex-col items-center">
-      <PageTitle title={title} />
+      <MainPageTitle title={"Configurações"} />
 
       <div className="flex flex-col gap-4 2xl:gap-12 w-full items-center">
         {/* Zoom */}
@@ -131,48 +122,6 @@ export default function Configuracoes() {
                         color: "var(--color-blue)",
                       },
                     }}
-                  />
-                </div>
-              ))}
-            </RadioGroup>
-          </FormControl>
-        </div>
-
-        {/* Idioma */}
-        <div className="flex flex-col  w-[80%] max-w-[700px]">
-          <p className="font-common font-medium">Idioma</p>
-
-          <FormControl>
-            <RadioGroup
-              row
-              value={language}
-              onChange={(e) => setLanguage(e.target.value as Language)}
-              className="flex flex-row justify-between w-full"
-            >
-              {[
-                { id: "pt", label: "Português" },
-                { id: "en", label: "English" },
-                { id: "es", label: "Español" },
-              ].map((lang) => (
-                <div key={lang.id} className="flex flex-row items-center">
-                  <FormControlLabel
-                    value={lang.id}
-                    checked={language === lang.id}
-                    sx={{
-                      "& .MuiFormControlLabel-label": {
-                        color: "var(--color-foreground)",
-                        fontFamily: "var(--font-barlow)",
-                      },
-                      "& .MuiRadio-root": {
-                        color: "var(--color-blue)",
-                        padding: 1,
-                      },
-                      "& .MuiRadio-root.Mui-checked": {
-                        color: "var(--color-blue)",
-                      },
-                    }}
-                    label={lang.label}
-                    control={<Radio />}
                   />
                 </div>
               ))}

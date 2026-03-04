@@ -10,15 +10,11 @@ import {
 
 export type ContrastLevel = "low" | "medium" | "high";
 
-export type Language = "pt" | "en" | "es";
-
 type SettingsContextType = {
   zoom: number;
   contrast: ContrastLevel;
-  language: Language;
   setZoom: (value: number) => void;
   setContrast: (value: ContrastLevel) => void;
-  setLanguage: (value: Language) => void;
   reset: () => void;
 };
 
@@ -27,7 +23,6 @@ const SettingsContext = createContext<SettingsContextType | null>(null);
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [zoom, setZoom] = useState(100);
   const [contrast, setContrast] = useState<ContrastLevel>("medium");
-  const [language, setLanguage] = useState<Language>("pt");
 
   // Zoom global
   useEffect(() => {
@@ -39,15 +34,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     document.documentElement.dataset.contrast = contrast;
   }, [contrast]);
 
-  // Idioma
-  useEffect(() => {
-    document.documentElement.lang = language;
-  }, [language]);
-
   function reset() {
     setZoom(100);
     setContrast("medium");
-    setLanguage("pt");
   }
 
   return (
@@ -55,10 +44,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       value={{
         zoom,
         contrast,
-        language,
         setZoom,
         setContrast,
-        setLanguage,
         reset,
       }}
     >
