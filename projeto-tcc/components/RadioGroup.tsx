@@ -1,7 +1,7 @@
 import { FormControl, Radio, RadioGroup } from "@mui/material";
 
 export type Options = {
-  value: string;
+  value: string | number;
   label: string;
   image?: React.ReactNode;
 };
@@ -11,14 +11,16 @@ export default function RadioComponent({
   value,
   onChange,
   options,
+  error,
 }: {
   type: "text" | "image";
-  value: string;
-  onChange: (value: string) => void;
+  value: string | number;
+  onChange: (value: string | number) => void;
   options: Options[];
+  error?: string;
 }) {
   return (
-    <FormControl>
+    <FormControl className="w-full min-w-0">
       <RadioGroup
         row
         value={value}
@@ -27,6 +29,7 @@ export default function RadioComponent({
       >
         {options.map((option) => {
           const selected = value === option.value;
+          console.log(typeof value, typeof option.value);
 
           return (
             <div
@@ -73,6 +76,9 @@ export default function RadioComponent({
           );
         })}
       </RadioGroup>
+      {error && (
+        <p className="text-red-500 font-common text-xs mt-1 break-words w-full min-w-0">{error}</p>
+      )}
     </FormControl>
   );
 }

@@ -1,51 +1,46 @@
-export type BasesNumericas = {
-  id: string,
-  numero: string;
-  baseOrigem: string;
-  baseDestino: string;
-};
+import { BASES } from "@/utils/bases";
 
-export const model: BasesNumericas[] = [
+export const model = [
   {
     id: "44-decimal-binario",
     numero: "44",
-    baseOrigem: "Decimal",
-    baseDestino: "Binária",
+    baseOrigem: BASES.DECIMAL,
+    baseDestino: BASES.BINARY,
   },
   {
     id: "243-decimal-binario",
     numero: "243",
-    baseOrigem: "Decimal",
-    baseDestino: "Binária",
+    baseOrigem: BASES.DECIMAL,
+    baseDestino: BASES.BINARY,
   },
   {
     id: "87-decimal-binario",
     numero: "87",
-    baseOrigem: "Binária",
-    baseDestino: "Decimal",
+    baseOrigem: BASES.BINARY,
+    baseDestino: BASES.DECIMAL,
   },
   {
     id: "101001001-binario-decimal",
     numero: "101001001",
-    baseOrigem: "Binária",
-    baseDestino: "Decimal",
+    baseOrigem: BASES.BINARY,
+    baseDestino: BASES.DECIMAL,
   },
   {
     id: "1000010110-binario-decimal",
     numero: "1000010110",
-    baseOrigem: "Binária",
-    baseDestino: "Decimal",
+    baseOrigem: BASES.BINARY,
+    baseDestino: BASES.DECIMAL,
   },
   {
     id: "1110010101-binario-decimal",
     numero: "1110010101",
-    baseOrigem: "Binária",
-    baseDestino: "Decimal",
+    baseOrigem: BASES.BINARY,
+    baseDestino: BASES.DECIMAL,
   },
   {
     id: "1101101101-binario-decimal",
     numero: "1101101101",
-    baseOrigem: "Binária",
-    baseDestino: "Decimal",
+    baseOrigem: BASES.BINARY,
+    baseDestino: BASES.DECIMAL,
   },
 ];

@@ -1,31 +1,32 @@
 type InputProps = {
   value: string;
   label: string;
-  type: "number" | "text";
   onChange: (value: string) => void;
-  allow?: RegExp;
-};
+  error?: string;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">;
 
 export default function Input({
   value,
   onChange,
-  allow,
   label,
-  type = "text",
+  error,
   ...props
-}: InputProps & React.InputHTMLAttributes<HTMLInputElement>) {
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const next = e.target.value;
-
-    if (allow && !allow.test(next)) return;
-
-    onChange(next);
-  }
+}: InputProps) {
 
   return (
-    <div className="flex flex-col gap-2">
-      <p className="font-common text-sm font-semibold">{label}</p>
-      <input {...props} value={value} onChange={handleChange} type={type} className="border border-gray-300 rounded-sm py-1 px-1.5 font-common"/>
+    <div className="flex flex-col w-full">
+      <p className="font-common text-sm font-semibold mb-2">{label}</p>
+      <input
+        {...props}
+        value={value}
+        onChange={(e) => {onChange(e.target.value)}}
+        className={`border ${
+          error ? "border-red-500 border-2" : "border-gray-300"
+        } rounded-sm py-1 px-1.5 font-common`}
+      />
+      {error && (
+        <p className="text-red-500 font-common text-xs mt-1 break-words w-full">{error}</p>
+      )}
     </div>
   );
 }

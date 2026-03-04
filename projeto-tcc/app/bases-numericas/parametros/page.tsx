@@ -1,46 +1,104 @@
 "use client";
 
-import ParamsPage, { Field } from "@/components/ParamsPage";
+import ParamsPage, { Field, Mode, ValidationResult } from "@/components/ParamsPage";
 import { TableRow } from "@/components/Table";
 import { model } from "@/lib/models/bases-numericas";
+import { BASE_LABELS, BASES, isBinary } from "@/utils/bases";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function BasesNumericas() {
-  const [values, setValues] = useState<Record<string, number | string>>({});
-  const [selectedModel, setSelectedModel] = useState<TableRow>();
+  const router = useRouter();
 
-  function handleChange(name: string, value: number | string) {
+  const [values, setValues] = useState<Record<string, number | string>>({}); // Valores customizados
+  const [selectedModel, setSelectedModel] = useState<TableRow>(); // Modelo pré-definido
+
+  const [mode, setMode] = useState<Mode>("preset");
+
+  const onSave = () => {
+    const source = mode === "preset" ? selectedModel : values;
+
+    if (!source) return;
+
+    const { numero, baseOrigem, baseDestino } = source;
+
+    if (baseOrigem === BASES.DECIMAL && baseDestino === BASES.BINARY) {
+      router.push(
+        `/bases-numericas/funcionamento/decimal-binario?numero=${numero}`
+      );
+    } else if (baseOrigem === BASES.BINARY && baseDestino === BASES.DECIMAL) {
+      router.push(
+        `/bases-numericas/funcionamento/binario-decimal?numero=${numero}`
+      );
+    }
+  };
+
+  const handleChange = (name: string, value: number | string) => {
     setValues((prev) => ({
       ...prev,
       [name]: value,
     }));
+  };
+
+  function validateFields(): ValidationResult {
+    const errors: Record<string, string> = {};
+  
+    if (mode === "preset") {
+      if (!selectedModel) {
+        errors.model = "Selecione um modelo";
+      }
+    } else {
+      // Não permite campos vazios
+      for (const field of fields) {
+        if (!values[field.name]) {
+          errors[field.name] = "Campo obrigatório";
+        }
+      }
+
+      // Não permite selecionar mesma base para origem e destino
+      if (values.baseOrigem && values.baseDestino && values.baseOrigem === values.baseDestino) {
+        errors.baseDestino = "Base destino deve ser diferente da base de origem"
+      }
+
+      if (values.baseOrigem && values.baseOrigem === BASES.BINARY) {
+        // Valida dígitos para número binário
+        if (!isBinary(values.numero.toString())) {
+          errors.numero = "Valor deve ser compatível com a base de origem selecionada"
+        }
+      } 
+    }
+  
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors,
+    };
   }
 
   const options = [
     {
-      label: "Decimal",
-      value: "decimal",
+      label: BASE_LABELS[BASES.DECIMAL],
+      value: BASES.DECIMAL,
     },
     {
-      label: "Binária",
-      value: "binaria",
+      label: BASE_LABELS[BASES.BINARY],
+      value: BASES.BINARY,
     },
   ];
 
   const fields: Field[] = [
-    { type: "number", name: "numero", label: "Número" },
     {
       type: "radio",
-      name: "base-origem",
+      name: "baseOrigem",
       label: "Base numérica de origem",
       options: options,
     },
     {
       type: "radio",
-      name: "base-destino",
+      name: "baseDestino",
       label: "Base numérica destino",
       options: options,
     },
+    { type: "input", name: "numero", label: "Número" },
   ];
 
   const table = {
@@ -71,6 +129,10 @@ export default function BasesNumericas() {
         onChange={handleChange}
         selectedModel={selectedModel}
         onSelectModel={setSelectedModel}
+        onSave={onSave}
+        mode={mode}
+        onModeChange={setMode}
+        validateFields={validateFields}
       />
     </div>
   );

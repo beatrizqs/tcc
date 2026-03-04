@@ -19,7 +19,7 @@ function HeaderDesktop() {
           <Link
             href="/bases-numericas"
             className={`text-sm text-white hover:underline underline-offset-6 transform ${
-              pathname === "/bases-numericas" && "underline"
+              pathname.includes("/bases-numericas") && "underline"
             }`}
           >
             Bases numéricas
@@ -28,7 +28,7 @@ function HeaderDesktop() {
           <Link
             href="/aritmetica-binaria"
             className={`text-sm text-white hover:underline underline-offset-6 transform ${
-              pathname === "/aritmetica-binaria" && "underline"
+              pathname.includes("/aritmetica-binaria") && "underline"
             }`}
           >
             Aritmética binária
@@ -37,7 +37,7 @@ function HeaderDesktop() {
           <Link
             href="/compressao-imagens"
             className={`text-sm text-white hover:underline underline-offset-6 transform ${
-              pathname === "/compressao-imagens" && "underline"
+              pathname.includes("/compressao-imagens") && "underline"
             }`}
           >
             Compressão de imagens
@@ -46,7 +46,7 @@ function HeaderDesktop() {
           <Link
             href="/criptografia"
             className={`text-sm text-white hover:underline underline-offset-6 transform ${
-              pathname === "/criptografia" && "underline"
+              pathname.includes("/criptografia") && "underline"
             }`}
           >
             Criptografia
