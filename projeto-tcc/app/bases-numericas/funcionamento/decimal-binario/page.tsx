@@ -31,7 +31,7 @@ export default function DecimalBinario() {
   const [visibleTokens, setVisibleTokens] = useState(1); // Elementos já renderizados da linha atual
   const [isRunning, setIsRunning] = useState(false);
   //const [waitingRemainder, setWaitingRemainder] = useState(false); // Aguarda o resto ser exibido na tela para poder renderizar a próxima linha
-  const [showResultDigits, setShowResultDigits] = useState<boolean[]>([]); // Exibir os dígitos do resultado após cada animação
+  const [visibleDigits, setVisibleDigits] = useState(0); // Exibir os dígitos do resultado após cada animação
   const resultRefs = useRef<(HTMLSpanElement | null)[]>([]); // Referências para os dígitos do resultado final
   const remainderRefs = useRef<(HTMLSpanElement | null)[]>([]); // Referências para os restos de cada linha do cálculo
   const [clone, setClone] = useState<Clone | null>(null); // Clone do dígito do resto que será animado até a posição do resultado
@@ -110,7 +110,7 @@ export default function DecimalBinario() {
 
   async function runAnimation() {
     setIsRunning(true);
-    setShowResultDigits(Array(result.length).fill(false));
+    setVisibleDigits(0);
 
     for (let i = 0; i < steps.length; i++) {
       setCurrentStep(i);
@@ -128,12 +128,10 @@ export default function DecimalBinario() {
       // Animação que leva o valor do resto até o resultado
       await animate(i);
 
-      // Permite visualização do item no resultado
-      setShowResultDigits((prev) =>
-        prev.map((item, index) => (result.length - 1 - i === index ? true : item))
-      );
-      await delay(200);
+      await delay(300);
 
+      // Permite visualização do item no resultado
+      setVisibleDigits((d) => d + 1);
     }
 
     setIsRunning(false);
@@ -153,7 +151,7 @@ export default function DecimalBinario() {
 
       <div className="grid grid-cols-2 w-full overflow-y-auto flex-1">
         {/* Operações */}
-        <div className="flex flex-col gap-6 text-2xl p-10 font-semibold text-xl font-title">
+        <div className="flex flex-col gap-6 text-2xl p-10 font-semibold text-xl font-title mx-auto">
           {(isRunning || currentStep > 0) &&
             steps.slice(0, currentStep + 1).map((step, index) => {
               const tokens = [step.value, "÷", 2, "=", step.result];
@@ -231,7 +229,7 @@ export default function DecimalBinario() {
               orientation="vertical"
               initialValue={{ value: parseInt(numero), base: "10" }}
               finalValue={{ value: parseInt(result), base: "2" }}
-              // showDigit={showResultDigits}
+              numberOfVisibleDigits={visibleDigits}
               refs={resultRefs}
             />
           </motion.div>

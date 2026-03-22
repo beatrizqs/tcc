@@ -1,4 +1,5 @@
 import { Base } from "@/utils/bases";
+import { motion } from "framer-motion";
 
 type Value = {
   value: number;
@@ -10,14 +11,14 @@ export default function Result({
   initialValue,
   finalValue,
   showResult = true,
-  showDigit,
-  refs // Referências do resultado final para animações
+  numberOfVisibleDigits,
+  refs, // Referências do resultado final para animações
 }: {
   orientation: "horizontal" | "vertical";
   initialValue: Value;
   finalValue: Value;
-  showResult?: boolean,
-  showDigit?: boolean[],
+  showResult?: boolean;
+  numberOfVisibleDigits?: number;
   refs?: React.RefObject<(HTMLSpanElement | null)[]>;
 }) {
   const resultDigits = String(finalValue.value).split("");
@@ -42,9 +43,7 @@ export default function Result({
 
       <div
         className={`bg-blue ${
-          orientation === "horizontal"
-            ? "h-[2px] w-12"
-            : "w-[2px] h-12"
+          orientation === "horizontal" ? "h-[2px] w-12" : "w-[2px] h-12"
         }`}
       />
 
@@ -59,12 +58,23 @@ export default function Result({
                   refs.current[i] = el;
                 }
               }}
-              className={`font-title font-bold text-blue text-2xl`}
+              className={`font-title font-bold text-blue text-2xl ${
+                numberOfVisibleDigits !== undefined &&
+                i < resultDigits.length - numberOfVisibleDigits
+                  ? "opacity-0"
+                  : "opacity-100"
+              }`}
             >
               {digit}
             </span>
           ))}
-          <p className="font-title font-bold text-blue text-base place-self-end -mb-1">
+          <p
+            className={`font-title font-bold text-blue text-base place-self-end -mb-1 ${
+              numberOfVisibleDigits !== undefined &&
+              numberOfVisibleDigits < resultDigits.length &&
+              "opacity-0"
+            }`}
+          >
             {finalValue.base}
           </p>
         </div>
