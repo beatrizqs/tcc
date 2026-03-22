@@ -9,7 +9,7 @@ function HeaderDesktop() {
   const pathname = usePathname();
 
   return (
-    <header className="fixed w-full shadow-md bg-linear-to-r from-blue to-purple hidden md:block z-100">
+    <header className="fixed top-0 w-full shadow-md bg-linear-to-r from-blue to-purple hidden md:block z-100">
       <div className="mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="text-lg font-semibold text-white font-title">
           Lorem Ipsum
