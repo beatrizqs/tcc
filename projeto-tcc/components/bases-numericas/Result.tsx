@@ -1,5 +1,4 @@
 import { Base } from "@/utils/bases";
-import { motion } from "framer-motion";
 
 type Value = {
   value: number;
@@ -14,7 +13,7 @@ export default function Result({
   numberOfVisibleDigits,
   refs, // Referências do resultado final para animações
 }: {
-  orientation: "horizontal" | "vertical";
+  orientation: "row" | "column";
   initialValue: Value;
   finalValue: Value;
   showResult?: boolean;
@@ -26,7 +25,7 @@ export default function Result({
   return (
     <div
       className={`flex items-center ${
-        orientation === "horizontal" ? "flex-row" : "flex-col"
+        orientation === "row" ? "flex-row" : "flex-col"
       }`}
     >
       {/* Valor inicial */}
@@ -43,7 +42,7 @@ export default function Result({
 
       <div
         className={`bg-blue ${
-          orientation === "horizontal" ? "h-[2px] w-12" : "w-[2px] h-12"
+          orientation === "row" ? "h-[2px] w-12" : "w-[2px] h-12"
         }`}
       />
 

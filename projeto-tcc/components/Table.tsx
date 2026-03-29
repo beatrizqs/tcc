@@ -1,6 +1,12 @@
 export type TableRow = {
   id: string;
-  [key: string]: string | number;
+  [key: string]: string;
+};
+
+export type TableHeader = {
+  key: keyof TableRow;
+  label: string;
+  render?: (value: string) => string;
 };
 
 export default function Table({
@@ -9,7 +15,7 @@ export default function Table({
   selectedItem,
   onSelect,
 }: {
-  headers: { key: keyof TableRow; label: string }[];
+  headers: TableHeader[];
   data: TableRow[];
   selectedItem?: TableRow;
   onSelect: (selectedItem: TableRow) => void;
@@ -38,9 +44,9 @@ export default function Table({
             return (
               <tr
                 key={item.id}
-                className={`cursor-pointer ${i > 0 && "border-t border-gray-400"} ${
-                  isSelected ? "bg-blue/25" : "hover:bg-blue/10"
-                }`}
+                className={`cursor-pointer ${
+                  i > 0 && "border-t border-gray-400"
+                } ${isSelected ? "bg-blue/25" : "hover:bg-blue/10"}`}
                 onClick={() => onSelect(item)}
               >
                 <td className="text-center">
@@ -53,7 +59,9 @@ export default function Table({
 
                 {headers.map((header) => (
                   <td key={String(header.key)} className="px-4 py-2 text-sm">
-                    {String(item[header.key])}
+                    {header.render
+                      ? header.render(item[header.key])
+                      : String(item[header.key])}
                   </td>
                 ))}
               </tr>

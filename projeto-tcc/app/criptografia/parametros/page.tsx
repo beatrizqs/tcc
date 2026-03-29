@@ -1,13 +1,17 @@
 "use client";
 
-import ParamsPage, { Field, Mode, ValidationResult } from "@/components/ParamsPage";
+import ParamsPage, {
+  Field,
+  Mode,
+  ValidationResult,
+} from "@/components/ParamsPage";
 import { TableRow } from "@/components/Table";
-import { model } from "@/lib/models/bases-numericas";
-import { Base, BASE_LABELS, BASES, isBinary } from "@/utils/bases";
+import { model } from "@/lib/models/criptografia";
+import { CYPHER_LABELS, CYPHERS, Cypher } from "@/utils/cifras";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function BasesNumericas() {
+export default function Criptografia() {
   const router = useRouter();
 
   const [values, setValues] = useState<Record<string, number | string>>({}); // Valores customizados
@@ -20,15 +24,19 @@ export default function BasesNumericas() {
 
     if (!source) return;
 
-    const { numero, baseOrigem, baseDestino } = source;
+    const { mensagem, cifra, params } = source;
 
-    if (baseOrigem === BASES.DECIMAL && baseDestino === BASES.BINARY) {
+    if (cifra === CYPHERS.SUBSTITUTION) {
       router.push(
-        `/bases-numericas/funcionamento/decimal-binario?numero=${numero}`
+        `/criptografia/funcionamento/substituicao?mensagem=${mensagem}`
       );
-    } else if (baseOrigem === BASES.BINARY && baseDestino === BASES.DECIMAL) {
+    } else if (cifra === CYPHERS.SHIFT) {
       router.push(
-        `/bases-numericas/funcionamento/binario-decimal?numero=${numero}`
+        `/criptografia/funcionamento/deslocamento?mensagem=${mensagem}&deslocamento=${params}`
+      );
+    } else if (cifra === CYPHERS.VIGENERE) {
+      router.push(
+        `/criptografia/funcionamento/vigenere?mensagem=${mensagem}&chave=${params}`
       );
     }
   };
@@ -42,7 +50,7 @@ export default function BasesNumericas() {
 
   function validateFields(): ValidationResult {
     const errors: Record<string, string> = {};
-  
+
     if (mode === "preset") {
       if (!selectedModel) {
         errors.model = "Selecione um modelo";
@@ -54,20 +62,8 @@ export default function BasesNumericas() {
           errors[field.name] = "Campo obrigatório";
         }
       }
-
-      // Não permite selecionar mesma base para origem e destino
-      if (values.baseOrigem && values.baseDestino && values.baseOrigem === values.baseDestino) {
-        errors.baseDestino = "Base destino deve ser diferente da base de origem"
-      }
-
-      if (values.baseOrigem && values.baseOrigem === BASES.BINARY) {
-        // Valida dígitos para número binário
-        if (!isBinary(values.numero.toString())) {
-          errors.numero = "Valor deve ser compatível com a base de origem selecionada"
-        }
-      } 
     }
-  
+
     return {
       isValid: Object.keys(errors).length === 0,
       errors,
@@ -76,46 +72,59 @@ export default function BasesNumericas() {
 
   const options = [
     {
-      label: BASE_LABELS[BASES.DECIMAL],
-      value: BASES.DECIMAL,
+      label: CYPHER_LABELS[CYPHERS.SUBSTITUTION],
+      value: CYPHERS.SUBSTITUTION,
     },
     {
-      label: BASE_LABELS[BASES.BINARY],
-      value: BASES.BINARY,
+      label: CYPHER_LABELS[CYPHERS.SHIFT],
+      value: CYPHERS.SHIFT,
+    },
+    {
+      label: CYPHER_LABELS[CYPHERS.VIGENERE],
+      value: CYPHERS.VIGENERE,
     },
   ];
 
   const fields: Field[] = [
     {
       type: "radio",
-      name: "baseOrigem",
-      label: "Base numérica de origem",
+      name: "cifra",
+      label: "Cifra",
       options: options,
+      orientation: "column"
     },
+    { type: "input", name: "mensagem", label: "Mensagem" },
     {
-      type: "radio",
-      name: "baseDestino",
-      label: "Base numérica destino",
-      options: options,
+      type: "input",
+      name: "params",
+      label: (values) => {
+        switch (values.cifra) {
+          case CYPHERS.SHIFT:
+            return "Deslocamento";
+          case CYPHERS.VIGENERE:
+            return "Senha";
+          default:
+            return "Parâmetros";
+        }
+      },
+      disabled: (values) => values.cifra === CYPHERS.SUBSTITUTION,
     },
-    { type: "input", name: "numero", label: "Número" },
   ];
 
   const table = {
     headers: [
       {
-        key: "numero",
-        label: "Número",
+        key: "mensagem",
+        label: "Mensagem",
       },
       {
-        key: "baseOrigem",
-        label: "Base de origem",
-        render: (value: string) => BASE_LABELS[value as Base],
+        key: "cifra",
+        label: "Cifra",
+        render: (value: string) => CYPHER_LABELS[value as Cypher],
       },
       {
-        key: "baseDestino",
-        label: "Base destino",
-        render: (value: string) => BASE_LABELS[value as Base],
+        key: "paramsLabel",
+        label: "Parâmetro",
       },
     ],
     data: model,

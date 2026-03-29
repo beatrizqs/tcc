@@ -12,24 +12,27 @@ export default function RadioComponent({
   onChange,
   options,
   error,
+  orientation = "row",
 }: {
   type: "text" | "image";
   value: string | number;
   onChange: (value: string | number) => void;
   options: Options[];
   error?: string;
+  orientation?: "row" | "column";
 }) {
   return (
     <FormControl className="w-full min-w-0">
       <RadioGroup
-        row
+        row={orientation === "row"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="flex w-full gap-8"
+        className={`flex w-full gap-8 ${
+          orientation === "column" ? "flex-col items-start" : "flex-row"
+        }`}
       >
         {options.map((option) => {
           const selected = value === option.value;
-          console.log(typeof value, typeof option.value);
 
           return (
             <div
@@ -61,14 +64,14 @@ export default function RadioComponent({
                 sx={{
                   padding: 0.5,
 
-                  color: "black", // cor quando não selecionado
+                  color: "black",
 
                   "& .MuiSvgIcon-root": {
-                    fontSize: 18, // tamanho do círculo (menor)
+                    fontSize: 18,
                   },
 
                   "&.Mui-checked": {
-                    color: "var(--color-blue)", // azul só quando selecionado
+                    color: "var(--color-blue)",
                   },
                 }}
               />
@@ -77,7 +80,9 @@ export default function RadioComponent({
         })}
       </RadioGroup>
       {error && (
-        <p className="text-red-500 font-common text-xs mt-1 break-words w-full min-w-0">{error}</p>
+        <p className="text-red-500 font-common text-xs mt-1 break-words w-full min-w-0">
+          {error}
+        </p>
       )}
     </FormControl>
   );

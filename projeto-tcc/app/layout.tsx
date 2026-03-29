@@ -38,7 +38,7 @@ export default function RootLayout({
         <SettingsProvider>
           <Header />
 
-          <main className="pt-16 pb-6 px-3 md:px-6 min-h-screen">
+          <main className="pt-14 pb-6 px-3 md:px-6 min-h-screen">
             {children}
           </main>
 

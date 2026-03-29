@@ -10,15 +10,15 @@ function HeaderDesktop() {
 
   return (
     <header className="fixed top-0 w-full shadow-md bg-linear-to-r from-blue to-purple hidden md:block z-100">
-      <div className="mx-auto px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="text-lg font-semibold text-white font-title">
+      <div className="mx-auto px-6 py-3 flex items-center justify-between">
+        <Link href="/" className="text-base font-semibold text-white font-title">
           Lorem Ipsum
         </Link>
 
         <nav className="flex items-center gap-6 font-common font-light">
           <Link
             href="/bases-numericas"
-            className={`text-sm text-white hover:underline underline-offset-6 transform ${
+            className={`text-xs text-white hover:underline underline-offset-6 transform ${
               pathname.includes("/bases-numericas") && "underline"
             }`}
           >
@@ -27,7 +27,7 @@ function HeaderDesktop() {
 
           <Link
             href="/aritmetica-binaria"
-            className={`text-sm text-white hover:underline underline-offset-6 transform ${
+            className={`text-xs text-white hover:underline underline-offset-6 transform ${
               pathname.includes("/aritmetica-binaria") && "underline"
             }`}
           >
@@ -36,7 +36,7 @@ function HeaderDesktop() {
 
           <Link
             href="/compressao-imagens"
-            className={`text-sm text-white hover:underline underline-offset-6 transform ${
+            className={`text-xs text-white hover:underline underline-offset-6 transform ${
               pathname.includes("/compressao-imagens") && "underline"
             }`}
           >
@@ -45,7 +45,7 @@ function HeaderDesktop() {
 
           <Link
             href="/criptografia"
-            className={`text-sm text-white hover:underline underline-offset-6 transform ${
+            className={`text-xs text-white hover:underline underline-offset-6 transform ${
               pathname.includes("/criptografia") && "underline"
             }`}
           >
@@ -53,7 +53,7 @@ function HeaderDesktop() {
           </Link>
 
           <Link href="/configuracoes">
-            <SlidersHorizontal size={24} weight="fill" className="text-white ml-10" />
+            <SlidersHorizontal size={20} weight="fill" className="text-white ml-6" />
           </Link>
         </nav>
       </div>
