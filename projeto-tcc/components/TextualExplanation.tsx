@@ -43,7 +43,7 @@ export default function TextualExplanation({
                     onClick={onClose}
                   />
                 </div>
-                <p className="font-common text-base text-justify p-2 whitespace-pre-line overflow-auto max-h-[60vh]">
+                <p className="font-common text-base text-justify py-2 pr-2 whitespace-pre-line overflow-auto max-h-[60vh]">
                   {explanation}
                 </p>
               </div>

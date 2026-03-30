@@ -8,5 +8,7 @@ Uma forma alternativa de visualizar esse processo é por meio da tabela de Vigen
 Para encontrar o caractere cifrado utilizando a tabela, localiza-se a coluna correspondente à letra da mensagem e a linha correspondente à letra da chave. A letra na interseção entre essa linha e coluna será o resultado da criptografia para aquela posição.\n
 Dessa forma, a Cifra de Vigenère consegue aplicar diferentes deslocamentos ao longo da mensagem, dificultando a análise de padrões e aumentando a segurança da criptografia.
 `,
-  },
+substituicao: `A cifra de substituição é um método de criptografia no qual cada caractere da mensagem original é substituído por outro caractere do alfabeto. Essa substituição segue uma regra fixa, garantindo que duas letras diferentes nunca sejam mapeadas para o mesmo caractere, mantendo uma correspondência única entre elas.\n
+Na visualização apresentada, o alfabeto em sua ordem padrão é exibido na linha superior, enquanto uma versão embaralhada (uma permutação aleatória) aparece logo abaixo. Para criptografar a mensagem, cada letra do texto original é substituída pela letra correspondente na mesma posição da linha inferior, formando assim a mensagem cifrada.\n
+Embora esse método esconda a mensagem original, ele não é considerado seguro. A cifra de substituição é vulnerável à análise de frequência, uma técnica que observa quais letras aparecem com maior frequência no texto cifrado e as compara com as letras mais comuns do idioma. Dessa forma, é possível identificar padrões e, eventualmente, descobrir a mensagem original.` },
 };
