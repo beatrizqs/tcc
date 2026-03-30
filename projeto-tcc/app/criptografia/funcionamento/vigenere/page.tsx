@@ -7,6 +7,8 @@ import { useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
 import { alphabet, ALPHABET_ARRAY } from "@/utils/alfabeto";
 import { motion } from "framer-motion";
+import TextualExplanation from "@/components/TextualExplanation";
+import { explanations } from "@/utils/explicacoes";
 
 type Character = {
   index: number;
@@ -24,6 +26,7 @@ export default function Vigenere() {
   const [currentStep, setCurrentStep] = useState<Step>();
   const [visibleResult, setVisibleResult] = useState(-1);
   const [showResult, setShowResult] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -85,6 +88,7 @@ export default function Vigenere() {
     setCurrentStep(undefined);
     setIsPaused(false);
     setShowResult(false);
+    setVisibleResult(-1);
     runAnimation();
   };
 
@@ -115,11 +119,12 @@ export default function Vigenere() {
       setCurrentStep(steps[i]);
 
       // Exibe o caracter de saída
-      await delay(1500);
+      await delay(1000);
       setVisibleResult(i);
 
       await delay(800);
     }
+    setIsRunning(false);
     setShowResult(true);
   }
 
@@ -135,12 +140,12 @@ export default function Vigenere() {
             title={"Criptografia"}
             href={"/criptografia/parametros"}
           />
-          <MainPageTitle title="Cifra de Vigenère" noMargin />
+          <MainPageTitle title="Cifra de Vigenère" noMargin className="mt-5"/>
 
           {(isRunning || currentStep) && (
             <div className="flex flex-col  w-full overflow-y-auto flex-1 font-title">
               {/* Criptografia da mensagem */}
-              <div className="flex flex-col gap-4 text-xl mx-auto text-blue font-title font-bold items-center my-14">
+              <div className="flex flex-col gap-4 text-xl mx-auto text-blue font-title font-bold items-center my-10">
                 {/* Chave */}
                 <div className="flex flex-row gap-3">
                   <p>Chave =</p>
@@ -212,7 +217,7 @@ export default function Vigenere() {
                 <motion.div
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6, duration: 0.3 }}
+                  transition={{ delay: 0.3, duration: 0.3 }}
                   className="flex flex-row gap-3 text-black text-2xl mx-auto font-title font-bold items-center "
                 >
                   <p>{mensagem} → </p>
@@ -225,7 +230,7 @@ export default function Vigenere() {
           )}
 
           {/* Botões */}
-          <div className={`flex flex-row gap-4 items-center mx-auto mt-8`}>
+          <div className={`flex flex-row gap-4 items-center mx-auto mt-8 mb-5`}>
             {isRunning ? (
               <>
                 <Button
@@ -240,7 +245,7 @@ export default function Vigenere() {
                   text={!currentStep ? "Iniciar" : "Repetir"}
                   onClick={reset}
                 />
-                <Button text="Explicação" onClick={() => {}} />
+                <Button text="Explicação" onClick={() => {setShowExplanation(true)}} />
               </>
             )}
           </div>
@@ -308,9 +313,14 @@ export default function Vigenere() {
         </div>
       </div>
 
-      {/* <div className="mt-auto">
-        <TextualExplanation explanation="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur" />
-      </div> */}
+      <TextualExplanation
+        explanation={explanations.criptografia.vigenere}
+        onClose={() => {
+          setShowExplanation(false);
+        }}
+        isOpen={showExplanation}
+      />
+      
     </div>
   );
 }

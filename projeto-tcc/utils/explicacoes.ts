@@ -1,0 +1,12 @@
+export const explanations = {
+  criptografia: {
+    vigenere: `A Cifra de Vigenère é um método de criptografia que utiliza múltiplos deslocamentos no alfabeto, tornando-a mais segura do que cifras simples, como a de César. Seu funcionamento baseia-se em duas informações principais: a mensagem original (texto claro) e uma chave secreta.\n
+Para iniciar o processo, a chave é repetida ou ajustada até possuir o mesmo comprimento da mensagem. Assim, cada caractere da mensagem terá um caractere correspondente da chave.\n
+Em seguida, cada letra da mensagem e da chave é convertida para sua posição no alfabeto (por exemplo: A = 0, B = 1, C = 2, ..., Z = 25). Para criptografar, somam-se os valores numéricos da letra da mensagem e da letra da chave que estão na mesma posição. O resultado dessa soma é então reduzido usando a operação de módulo 26, garantindo que o valor permaneça dentro do intervalo do alfabeto.\n
+O número obtido após o módulo 26 é convertido novamente para uma letra, gerando assim o caractere cifrado correspondente. Esse processo é repetido para todos os caracteres da mensagem, formando o texto criptografado.\n
+Uma forma alternativa de visualizar esse processo é por meio da tabela de Vigenère. Nessa tabela, o alfabeto aparece tanto no topo quanto na lateral esquerda. Cada linha representa o alfabeto deslocado de acordo com a letra da chave.\n
+Para encontrar o caractere cifrado utilizando a tabela, localiza-se a coluna correspondente à letra da mensagem e a linha correspondente à letra da chave. A letra na interseção entre essa linha e coluna será o resultado da criptografia para aquela posição.\n
+Dessa forma, a Cifra de Vigenère consegue aplicar diferentes deslocamentos ao longo da mensagem, dificultando a análise de padrões e aumentando a segurança da criptografia.
+`,
+  },
+};
