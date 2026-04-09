@@ -133,7 +133,7 @@ export default function Criptografia() {
   return (
     <div className="flex flex-col">
       <ParamsPage
-        title="Bases numéricas"
+        title="Criptografia"
         fields={fields}
         table={table}
         values={values}

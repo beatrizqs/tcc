@@ -128,10 +128,9 @@ export default function Vigenere() {
     setShowResult(true);
   }
 
-  function delay(ms: number) {
+  const delay = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
-
   return (
     <div className="flex flex-col w-full h-[calc(100vh-100px)]">
       <div className="grid grid-cols-2">
@@ -145,9 +144,9 @@ export default function Vigenere() {
           {(isRunning || currentStep) && (
             <div className="flex flex-col  w-full overflow-y-auto flex-1 font-title">
               {/* Criptografia da mensagem */}
-              <div className="flex flex-col gap-4 text-xl mx-auto text-blue font-title font-bold items-center my-10">
+              <div className="flex flex-col gap-4 text-2xl mx-auto text-blue font-title font-bold items-center my-10">
                 {/* Chave */}
-                <div className="flex flex-row gap-3">
+                <div className="flex flex-row gap-3 items-center">
                   <p>Chave =</p>
                   <div className="border border-blue rounded-md py-[2px] px-2">
                     {chave}
@@ -156,7 +155,7 @@ export default function Vigenere() {
 
                 {/* Tabela com mensagem, chave expandida e resultado */}
                 <div className="border-1 border-black rounded-md overflow-hidden">
-                  <table className=" text-xl">
+                  <table className=" text-2xl">
                     <tbody>
                       {/* Mensagem */}
                       <tr>
@@ -218,7 +217,7 @@ export default function Vigenere() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3, duration: 0.3 }}
-                  className="flex flex-row gap-3 text-black text-2xl mx-auto font-title font-bold items-center "
+                  className="flex flex-row gap-3 text-black text-22xl mx-auto font-title font-bold items-center "
                 >
                   <p>{mensagem} → </p>
                   <div className="border border-blue rounded-md py-1 px-3 text-blue">
@@ -251,7 +250,7 @@ export default function Vigenere() {
           </div>
         </div>
         {/* Tabela de Vigenère */}
-        <div className="flex flex-col items-center gap-1 font-title justify-center mt-2">
+        <div className="flex flex-col items-center gap-1 font-title justify-center mt-2 2xl:mt-10">
           <div className="text-sm font-semibold">MENSAGEM</div>
 
           <div className="flex items-center gap-1 font-title">
@@ -260,14 +259,14 @@ export default function Vigenere() {
             </div>
 
             {/* Matriz */}
-            <table className="border-collapse text-[12px]">
+            <table className="border-collapse text-[12px] 2xl:text-base">
               <thead>
                 <tr>
-                  <th className="size-[20px]"></th>
+                  <th className="size-[20px] 2xl:size-7"></th>
 
                   {ALPHABET_ARRAY.map((char, i) => (
                     <th
-                      className={`size-[20px] text-center text-black transition ease-in-out delay-100 ${
+                      className={`size-[20px] 2xl:size-7 text-center text-black transition ease-in-out delay-100 ${
                         currentStep?.plaintext.index === i && "text-blue"
                       }`}
                       key={char}
@@ -282,7 +281,7 @@ export default function Vigenere() {
                 {ALPHABET_ARRAY.map((row, i) => (
                   <tr key={row}>
                     <th
-                      className={`size-[20px]  text-center text-black transition ease-in-out delay-100 ${
+                      className={`size-[20px] 2xl:size-7 text-center text-black transition ease-in-out delay-100 ${
                         currentStep?.key.index === i && "text-blue"
                       }`}
                     >
