@@ -269,7 +269,7 @@ export default function Deslocamento() {
                       return (
                         <td
                           key={`${char}-${i}`}
-                          className={`p-3 xl:p-5 text-blue transition ease-in-out border-black border-1 border-t-2 ${
+                          className={`p-3 2xl:p-5 text-blue transition ease-in-out border-black border-1 border-t-2 ${
                             visibleResult < i ? "opacity-0" : "opacity-100"
                           }`}
                         >
@@ -329,7 +329,7 @@ export default function Deslocamento() {
       </div>
 
       <TextualExplanation
-        explanation={explanations.criptografia.substituicao}
+        explanation={explanations.criptografia.deslocamento}
         onClose={() => {
           setShowExplanation(false);
         }}

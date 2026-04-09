@@ -10,5 +10,9 @@ Dessa forma, a Cifra de Vigenère consegue aplicar diferentes deslocamentos ao l
 `,
 substituicao: `A cifra de substituição é um método de criptografia no qual cada caractere da mensagem original é substituído por outro caractere do alfabeto. Essa substituição segue uma regra fixa, garantindo que duas letras diferentes nunca sejam mapeadas para o mesmo caractere, mantendo uma correspondência única entre elas.\n
 Na visualização apresentada, o alfabeto em sua ordem padrão é exibido na linha superior, enquanto uma versão embaralhada (uma permutação aleatória) aparece logo abaixo. Para criptografar a mensagem, cada letra do texto original é substituída pela letra correspondente na mesma posição da linha inferior, formando assim a mensagem cifrada.\n
-Embora esse método esconda a mensagem original, ele não é considerado seguro. A cifra de substituição é vulnerável à análise de frequência, uma técnica que observa quais letras aparecem com maior frequência no texto cifrado e as compara com as letras mais comuns do idioma. Dessa forma, é possível identificar padrões e, eventualmente, descobrir a mensagem original.` },
+Embora esse método esconda a mensagem original, ele não é considerado seguro. A cifra de substituição é vulnerável à análise de frequência, uma técnica que observa quais letras aparecem com maior frequência no texto cifrado e as compara com as letras mais comuns do idioma. Dessa forma, é possível identificar padrões e, eventualmente, descobrir a mensagem original.`,
+
+deslocamento: `A cifra de deslocamento é um método de criptografia no qual cada letra da mensagem é substituída por outra, obtida ao se deslocar um número fixo de posições (X) no alfabeto.\n
+Na visualização apresentada, há dois anéis contendo as letras do alfabeto: o anel interno representa as letras da mensagem original, enquanto o anel externo mostra os caracteres criptografados.\n
+Ao rotacionar o anel interno em X posições, cada letra da mensagem original passa a se alinhar com uma nova letra no anel externo. A criptografia é realizada substituindo-se cada letra original pelo caractere correspondente alinhado no anel externo.` },
 };
