@@ -27,8 +27,8 @@ export default function RadioComponent({
         row={orientation === "row"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`flex w-full gap-8 ${
-          orientation === "column" ? "flex-col items-start" : "flex-row"
+        className={`flex w-full ${
+          orientation === "column" ? "flex-col items-start gap-2" : "flex-row gap-8"
         }`}
       >
         {options.map((option) => {

@@ -22,38 +22,70 @@
   --foreground: #171717;
 
   --blue-strong: oklch(0.3167 0.2088 262.97);
-  --blue-light:  oklch(0.4537 0.2193 262.97);
+  --blue-light: oklch(0.4537 0.2193 262.97);
   --blue-pastel: oklch(0.6108 0.1348 262.97);
 
   --purple-strong: oklch(0.3461 0.1817 306.71);
-  --purple-light:  oklch(0.4353 0.1899 306.71);
+  --purple-light: oklch(0.4353 0.1899 306.71);
   --purple-pastel: oklch(0.6167 0.1398 306.71);
 
   --red-strong: oklch(0.4167 0.2162 25.06);
-  --red-light:  oklch(0.5667 0.2335 25.06);
+  --red-light: oklch(0.5667 0.2335 25.06);
   --red-pastel: oklch(0.6814 0.1348 25.06);
+
+  --yellow-strong: oklch(0.85 0.18 100);
+  --yellow-light: oklch(0.92 0.16 100);
+  --yellow-pastel: oklch(0.97 0.1 100);
+
+  --sky-strong: oklch(0.75 0.12 220);
+  --sky-light: oklch(0.85 0.1 220);
+  --sky-pastel: oklch(0.93 0.06 220);
+
+  --green-strong: oklch(0.55 0.2 140);
+  --green-light: oklch(0.65 0.18 140);
+  --green-pastel: oklch(0.8 0.12 140);
+
+  --orange-strong: oklch(0.6 0.22 50);
+  --orange-light: oklch(0.7 0.2 50);
+  --orange-pastel: oklch(0.82 0.12 50);
 
   --color-blue: var(--blue-light);
   --color-purple: var(--purple-light);
   --color-red: var(--red-light);
+  --color-yellow: var(--yellow-light);
+  --color-sky: var(--sky-light);
+  --color-green: var(--green-light);
+  --color-orange: var(--orange-light);
 }
 
 :root[data-contrast="low"] {
   --color-blue: var(--blue-pastel);
   --color-purple: var(--purple-pastel);
   --color-red: var(--red-pastel);
+  --color-yellow: var(--yellow-pastel);
+  --color-sky: var(--sky-pastel);
+  --color-green: var(--green-pastel);
+  --color-orange: var(--orange-pastel);
 }
 
 :root[data-contrast="medium"] {
   --color-blue: var(--blue-light);
   --color-purple: var(--purple-light);
   --color-red: var(--red-light);
+  --color-yellow: var(--yellow-light);
+  --color-sky: var(--sky-light);
+  --color-green: var(--green-light);
+  --color-orange: var(--orange-light);
 }
 
 :root[data-contrast="high"] {
   --color-blue: var(--blue-strong);
   --color-purple: var(--purple-strong);
   --color-red: var(--red-strong);
+  --color-yellow: var(--yellow-strong);
+  --color-sky: var(--sky-strong);
+  --color-green: var(--green-strong);
+  --color-orange: var(--orange-strong);
 }
 
 @theme inline {
@@ -63,6 +95,10 @@
   --color-blue: var(--color-blue);
   --color-purple: var(--color-purple);
   --color-red: var(--color-red);
+  --color-yellow: var(--color-yellow);
+  --color-sky: var(--color-sky);
+  --color-green: var(--color-green);
+  --color-orange: var(--color-orange);
 
   --color-preview-blue-strong: var(--blue-strong);
   --color-preview-purple-strong: var(--purple-strong);

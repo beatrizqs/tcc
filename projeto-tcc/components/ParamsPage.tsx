@@ -29,7 +29,7 @@ export type Field =
       label: Dynamic<string>;
       options: { label: string; value: string | number }[];
       className?: string;
-      orientation?: "row" | "column"
+      orientation?: "row" | "column";
     }
   | {
       type: "imageRadio";
@@ -98,7 +98,7 @@ export default function ParamsPage({
           : "Informe abaixo os parâmetros para o modelo customizado"}
       </p>
 
-      <div className="flex flex-col mt-4">
+      <div className={`flex flex-col ${fields.length <= 3 && "mt-4"}`}>
         {mode === "preset" ? (
           <Table
             headers={table.headers}
@@ -107,8 +107,8 @@ export default function ParamsPage({
             onSelect={(item) => onSelectModel?.(item)}
           />
         ) : (
-          <div className="grid grid-cols-3 gap-8 w-fit place-self-center my-5">
-            {fields.map((field) => {
+          <div className="grid grid-cols-[auto_auto_auto] gap-x-32 gap-y-8 w-fit place-self-center my-5">
+            {fields.map((field, index) => {
               const value = values[field.name] ?? "";
 
               const label = resolve(field.label) ?? "";
@@ -162,7 +162,9 @@ export default function ParamsPage({
                   return (
                     <div
                       key={field.name}
-                      className="flex flex-col gap-3 w-full min-w-0"
+                      className={`flex flex-col gap-3 w-full min-w-0 ${
+                        fields.length === 4 && index === 3 && "col-span-3"
+                      }`}
                     >
                       <p className="font-common text-sm font-semibold">
                         {label}
