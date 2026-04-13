@@ -217,7 +217,7 @@ export default function Vigenere() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3, duration: 0.3 }}
-                  className="flex flex-row gap-3 text-black text-22xl mx-auto font-title font-bold items-center "
+                  className="flex flex-row gap-3 text-black text-2xl mx-auto font-title font-bold items-center "
                 >
                   <p>{mensagem} → </p>
                   <div className="border border-blue rounded-md py-1 px-3 text-blue">

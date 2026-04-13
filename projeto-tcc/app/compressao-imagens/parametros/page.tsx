@@ -11,6 +11,9 @@ import {
   Compression,
   COMPRESSION_ALGORITHM,
   COMPRESSION_ALGORITHM_LABELS,
+  Design,
+  IMG_DESIGN,
+  IMG_DESIGN_LABELS,
   IMG_REPRESENTATION,
   IMG_REPRESENTATION_LABELS,
   PALETTE,
@@ -20,7 +23,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Options } from "@/components/RadioGroup";
 import {
-  imageDiagonais,
+  imageQuadrados,
   imageListras,
   imagePaisagem,
   model,
@@ -55,15 +58,18 @@ export default function CompressaoImagens() {
             gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
           }}
         >
-          {grid.map((value, index) => (
-            <div
-              key={index}
-              className={`${
-                size === 4 ? "size-6" : size === 8 ? "size-3" : "size-2"
-              }`}
-              style={{ backgroundColor: PALETTE[value] }}
-            />
-          ))}
+          {grid.map((value, index) => {
+            const [r, g, b] = PALETTE[value];
+            return (
+              <div
+                key={index}
+                className={`${
+                  size === 4 ? "size-6" : size === 8 ? "size-3" : "size-2"
+                }`}
+                style={{ backgroundColor: `rgb(${r}, ${g}, ${b})` }}
+              />
+            );
+          })}
         </div>
       </div>
     );
@@ -165,19 +171,19 @@ export default function CompressaoImagens() {
 
   const optionsDesign: Options[] = [
     {
-      value: "paisagem",
-      label: "Paisagem",
+      value: IMG_DESIGN.PAISAGEM,
+      label: IMG_DESIGN_LABELS[IMG_DESIGN.PAISAGEM],
       image: RenderImage(imagePaisagem),
     },
     {
-      value: "listras",
-      label: "Listras",
+      value: IMG_DESIGN.LISTRAS,
+      label: IMG_DESIGN_LABELS[IMG_DESIGN.LISTRAS],
       image: RenderImage(imageListras),
     },
     {
-      value: "diagonais",
-      label: "Diagonais",
-      image: RenderImage(imageDiagonais),
+      value: IMG_DESIGN.QUADRADO,
+      label: IMG_DESIGN_LABELS[IMG_DESIGN.QUADRADO],
+      image: RenderImage(imageQuadrados),
     },
   ];
 
@@ -216,11 +222,13 @@ export default function CompressaoImagens() {
       {
         key: "desenho",
         label: "Desenho",
+        render: (value: string) =>
+          IMG_DESIGN_LABELS[value as Design],
       },
       {
         key: "tamanho",
         label: "Tamanho",
-        render: (value: string) => `${value}x${value}`
+        render: (value: string) => `${value}x${value}`,
       },
       {
         key: "algoritmo",

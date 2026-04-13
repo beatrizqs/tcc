@@ -1,10 +1,10 @@
 export const PALETTE = [
-  "var(--color-sky)",    
-  "var(--color-green)",  
-  "var(--color-yellow)", 
-  "var(--color-orange)", 
-  "var(--color-red)",    
-  "var(--color-purple)"  
+  [186, 245, 255], // SKY
+  [20, 175, 31],   // GREEN
+  [255, 244, 79],  // YELLOW
+  [255, 128, 0],   // ORANGE
+  [255, 87, 51],   // RED
+  [147, 51, 234],  // PURPLE
 ] as const;
 
 export type ColorIndex = (typeof COLORS)[keyof typeof COLORS];
@@ -45,5 +45,20 @@ export const IMG_REPRESENTATION_LABELS: Record<Representation, string> = {
   [IMG_REPRESENTATION.GRAYSCALE]: "Grayscale",
   [IMG_REPRESENTATION.COLORS]: "Colorida",
 };
+
+export type Design = typeof IMG_DESIGN[keyof typeof IMG_DESIGN];
+
+export const IMG_DESIGN = {
+  PAISAGEM: "paisagem",
+  LISTRAS: "listras",
+  QUADRADO: "quadrado"
+} as const;
+
+export const IMG_DESIGN_LABELS: Record<Design, string> = {
+  [IMG_DESIGN.PAISAGEM]: "Paisagem",
+  [IMG_DESIGN.LISTRAS]: "Listras",
+  [IMG_DESIGN.QUADRADO]: "Quadrados",
+};
+
 
 
