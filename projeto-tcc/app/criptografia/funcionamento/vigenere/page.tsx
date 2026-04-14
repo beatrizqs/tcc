@@ -92,6 +92,12 @@ export default function Vigenere() {
     runAnimation();
   };
 
+  const finish = () => {
+    setVisibleResult(steps.length - 1)
+    setIsRunning(false)
+    setShowResult(true)
+  }
+
   const waitIfPaused = () => {
     return new Promise<void>((resolve) => {
       const check = () => {
@@ -237,6 +243,7 @@ export default function Vigenere() {
                   onClick={() => setIsPaused((p) => !p)}
                 />
                 {isPaused && <Button text={"Reiniciar"} onClick={reset} />}
+                {isPaused && <Button text={"Finalizar"} onClick={finish} />}
               </>
             ) : (
               <>

@@ -88,6 +88,16 @@ export default function Deslocamento() {
     runAnimation();
   };
 
+  
+  const finish = () => {
+    setVisibleResult(mensagem.length)
+    setIsRunning(false)
+    setShowResult(true)
+    setRotation((360 / 26) * deslocamento);
+    setCasasDeslocadas(deslocamento)
+    setCurrentStep(mensagem.length - 1)
+  }
+
   const result = mensagem
     .split("")
     .map((char) => {
@@ -309,6 +319,7 @@ export default function Deslocamento() {
                   onClick={() => setIsPaused((p) => !p)}
                 />
                 {isPaused && <Button text={"Reiniciar"} onClick={reset} />}
+                {isPaused && <Button text={"Finalizar"} onClick={finish} />}
               </>
             ) : (
               <>

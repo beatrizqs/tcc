@@ -12,7 +12,9 @@ import {
   ColorIndex,
   IMG_DESIGN,
   IMG_REPRESENTATION,
+  IMG_REPRESENTATION_LABELS,
   PALETTE,
+  Representation,
 } from "@/utils/compressao-imagens";
 import {
   imageListras,
@@ -71,7 +73,7 @@ export default function RLE() {
     const gray = grayscale(pixels);
     const black_white = [];
     for (const pixel of gray) {
-      const bw = pixel > 128 ? 1 : 0;
+      const bw = pixel > 128 ? 255 : 0;
       black_white.push(bw);
     }
 
@@ -145,6 +147,20 @@ export default function RLE() {
       show: false,
     });
     runAnimation();
+  };
+
+  const finish = () => {
+    setShowResult(true);
+    setVisibleResult(steps.length);
+    setHighlightedPixels(0)
+    setBytesSum({
+      sum: compressed_size,
+      step: undefined,
+      highlightAmount: false,
+      highlightPixel: false,
+      show: true,
+    });
+    setIsRunning(false)
   };
 
   const waitIfPaused = () => {
@@ -292,7 +308,9 @@ export default function RLE() {
                               : tamanho === 8
                               ? "size-9"
                               : "size-6"
-                          } ${highlight && "outline-2 outline-offset-[-2px] "} `}
+                          } ${
+                            highlight && "outline-2 outline-offset-[-2px] "
+                          } `}
                           style={{ backgroundColor: `rgb(${r}, ${g}, ${b})` }}
                           key={j}
                         />
@@ -302,6 +320,8 @@ export default function RLE() {
                 ))}
               </tbody>
             </table>
+
+            <p>{IMG_REPRESENTATION_LABELS[representacao as Representation]}</p>
           </div>
 
           {/* Compressão e resultado */}
@@ -311,14 +331,16 @@ export default function RLE() {
               <p className="text-xl text-blue font-title font-semibold">
                 Compressão dos pixels
               </p>
-              <div className="flex flex-row flex-wrap gap-2 border rounded-lg border-blue p-2 overflow-y-auto font-common items-center">
+              <div className="flex flex-row flex-wrap gap-3 border rounded-lg border-blue p-3 overflow-y-auto font-common items-center">
                 {steps.map((step, i) => {
                   const [r, g, b] =
                     representacao === IMG_REPRESENTATION.COLORS
                       ? PALETTE[step.color as ColorIndex]
                       : [step.color, step.color, step.color];
 
-                  const activeStep = bytesSum.step ? step.id === bytesSum.step!.id : false;
+                  const activeStep = bytesSum.step
+                    ? step.id === bytesSum.step!.id
+                    : false;
 
                   return (
                     <div
@@ -331,16 +353,14 @@ export default function RLE() {
                     >
                       <p
                         className={`text-black font-medium transition ease-in-out ${
-                          activeStep &&
-                          bytesSum.highlightAmount &&
-                          "text-blue "
+                          activeStep && bytesSum.highlightAmount && "text-blue "
                         }`}
                       >
                         {step.amount}
                       </p>
                       <div
                         style={{ backgroundColor: `rgb(${r}, ${g}, ${b})` }}
-                        className={`size-4 transition ease-in-out ${
+                        className={`size-4 transition ease-in-out border ${
                           activeStep &&
                           bytesSum.highlightPixel &&
                           "outline outline-2 outline-blue"
@@ -374,7 +394,7 @@ export default function RLE() {
                     {compressed_size} bytes
                   </div>
                 </div>
-                <p className="text-lg font-title text-center">
+                <p className="text-lg font-title text-center text-blue">
                   {" "}
                   Redução de{" "}
                   {100 -
@@ -395,6 +415,7 @@ export default function RLE() {
                 onClick={() => setIsPaused((p) => !p)}
               />
               {isPaused && <Button text={"Reiniciar"} onClick={reset} />}
+              {isPaused && <Button text={"Finalizar"} onClick={finish} />}
             </>
           ) : (
             <>
@@ -414,7 +435,7 @@ export default function RLE() {
       </div>
 
       <TextualExplanation
-        explanation={explanations.criptografia.vigenere}
+        explanation={explanations.compressaoImagens.rle}
         onClose={() => {
           setShowExplanation(false);
         }}
