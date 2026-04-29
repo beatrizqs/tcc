@@ -93,7 +93,7 @@ export default function Vigenere() {
   };
 
   const finish = () => {
-    setVisibleResult(steps.length - 1)
+    setVisibleResult(steps.length - 1 )
     setIsRunning(false)
     setShowResult(true)
   }

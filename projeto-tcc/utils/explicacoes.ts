@@ -25,5 +25,15 @@ Na visualização apresentada, o sistema percorre a imagem e agrupa pixels conse
 Ao final do processo, é possível calcular o tamanho da imagem comprimida considerando que cada par ocupa uma quantidade fixa de bytes (por exemplo, 1 byte para a quantidade e 1 byte para o valor, dependendo da implementação). Esse valor pode então ser comparado com o tamanho original da imagem, que normalmente considera 1 byte por pixel.\n
 Com isso, também é possível calcular a porcentagem de redução obtida com a compressão.\n
 É importante destacar que o RLE é mais eficiente em imagens com alta redundância, ou seja, com grandes áreas de cor uniforme. Em imagens com muita variação de cores (como fotografias), o algoritmo pode não ser eficaz e, em alguns casos, pode até aumentar o tamanho dos dados.`
+  },
+  bases_numericas: {
+    binario_decimal: `A conversão de um número binário para um decimal é baseada no uso das potências de 2.\n
+    Cada dígito binário (bit) representa uma potência de 2, de acordo com sua posição. Conta-se essas posições da direita para a esquerda, começando do zero. Dessa forma, o bit mais à direita (bit menos significativo) corresponde a 2⁰, o próximo corresponde a 2¹, e assim por diante.\n
+    Após definir todas as correspondências entre bits e potências, considera-se apenas as potências cujo bit assocido é 1, e depois soma-se esses valores.\n
+    Por exemplo, para o número binário 1010:\n
+    Bits:       1   0   1   0\n
+    Posições:   3   2   1   0\n
+    Potências:  2³  2²  2¹  2⁰\n
+    Selecionando apenas os bits iguais a 1, temos: 2³ + 2¹ = 8 + 2 = 10`
   }
 };

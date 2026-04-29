@@ -31,10 +31,10 @@ export default function Result({
       {/* Valor inicial */}
       <div className="border-2 border-black rounded-lg p-5">
         <div className="flex flex-row">
-          <p className="font-title font-bold text-black text-2xl place-self-start -mt-1">
+          <p className="font-title font-bold text-black text-2xl 2xl:text-4xl place-self-start -mt-1">
             {initialValue.value}
           </p>
-          <p className="font-title font-bold text-black text-base place-self-end -mb-1">
+          <p className="font-title font-bold text-black text-base 2xl:text-xl place-self-end -mb-1">
             {initialValue.base}
           </p>
         </div>
@@ -57,7 +57,7 @@ export default function Result({
                   refs.current[i] = el;
                 }
               }}
-              className={`font-title font-bold text-blue text-2xl ${
+              className={`font-title font-bold text-blue text-2xl 2xl:text-4xl ${
                 numberOfVisibleDigits !== undefined &&
                 i < resultDigits.length - numberOfVisibleDigits
                   ? "opacity-0"
@@ -68,7 +68,7 @@ export default function Result({
             </span>
           ))}
           <p
-            className={`font-title font-bold text-blue text-base place-self-end -mb-1 ${
+            className={`font-title font-bold text-blue text-base 2xl:text-xl place-self-end -mb-1 ${
               numberOfVisibleDigits !== undefined &&
               numberOfVisibleDigits < resultDigits.length &&
               "opacity-0"
