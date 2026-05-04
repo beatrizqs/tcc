@@ -35,5 +35,15 @@ Com isso, também é possível calcular a porcentagem de redução obtida com a 
     Posições:   3   2   1   0\n
     Potências:  2³  2²  2¹  2⁰\n
     Selecionando apenas os bits iguais a 1, temos: 2³ + 2¹ = 8 + 2 = 10`
+  },
+  aritmeticaBinaria: {
+    soma: `A soma de números binários funciona de forma muito semelhante à de números decimais. Primeiro, alinha-se os valores a serem somados um acima do outro, de forma que os últimos dígitos de ambos fiquem na mesma coluna.\n
+    Em seguida, soma-se o valor na parte de cima da coluna com o da parte de baixo. Na aritmética binária, seguem-se as seguintes regras para definir o resultado da soma de bits:\n
+    0 + 0 = 0\n
+    1 + 0 = 1\n
+    0 + 1 = 1\n
+    1 + 1 = 10, que equivale ao 2 em decimal\n
+    1 + 1 + 1 (carry da operação anterior) = 11, que equivale ao 3 em decimal\n
+    Sabendo disso, calcula-se da mesma forma que em uma soma decimal: caso a soma dos dois valores ocupe mais que uma casa (ou seja, caso resulte em 10 ou 11), o bit menos significativo (valor mais à direita) fica como resultado dessa coluna, enquanto o outro é passado para a próxima coluna como carry.`
   }
 };

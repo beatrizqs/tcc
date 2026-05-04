@@ -117,7 +117,7 @@ export default function ParamsPage({
                 case "input":
                   let allow: RegExp;
 
-                  if (field.name === "numero") {
+                  if (field.name === "numero" || field.name.includes("valor")) {
                     allow = decimalRegex;
                   }
 
