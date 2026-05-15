@@ -24,12 +24,12 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [zoom, setZoom] = useState(100);
   const [contrast, setContrast] = useState<ContrastLevel>("medium");
 
-  // Zoom global
+  // Global zoom
   useEffect(() => {
     document.documentElement.style.fontSize = `${zoom}%`;
   }, [zoom]);
 
-  // Contraste global
+  //  Global contrast
   useEffect(() => {
     document.documentElement.dataset.contrast = contrast;
   }, [contrast]);
