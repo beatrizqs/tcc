@@ -10,7 +10,7 @@ import { useState } from "react";
 
 export type Mode = "preset" | "custom";
 
-// Permite adicionar condicionais na renderização do campo
+// Allows conditions on field rendering
 type Dynamic<T> = T | ((values: Record<string, any>) => T);
 
 export type Field =
@@ -78,7 +78,7 @@ export default function ParamsPage({
 }: ParamsPageProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Customização de campos
+  // Field customization
   const resolve = <T,>(prop: Dynamic<T> | undefined): T | undefined =>
     typeof prop === "function"
       ? (prop as (values: Record<string, any>) => T)(values)

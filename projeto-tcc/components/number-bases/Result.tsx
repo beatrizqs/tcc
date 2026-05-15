@@ -11,7 +11,7 @@ export default function Result({
   finalValue,
   showResult = true,
   numberOfVisibleDigits,
-  refs, // Referências do resultado final para animações
+  refs, // Result reference for animations
 }: {
   orientation: "row" | "column";
   initialValue: Value;
@@ -28,7 +28,7 @@ export default function Result({
         orientation === "row" ? "flex-row" : "flex-col"
       }`}
     >
-      {/* Valor inicial */}
+      {/* Initial value */}
       <div className="border-2 border-black rounded-lg p-5">
         <div className="flex flex-row">
           <p className="font-title font-bold text-black text-2xl 2xl:text-4xl place-self-start -mt-1">
@@ -46,7 +46,7 @@ export default function Result({
         }`}
       />
 
-      {/* Valor final */}
+      {/* Final value */}
       <div className="border-2 border-blue rounded-lg p-5">
         <div className={`flex flex-row ${!showResult && "opacity-0"}`}>
           {resultDigits.map((digit, i) => (

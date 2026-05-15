@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { List, SlidersHorizontal, X } from "phosphor-react";
-import { useState } from "react";
+import { SlidersHorizontal } from "phosphor-react";
 
-function HeaderDesktop() {
+export default function Header() {
   const pathname = usePathname();
 
   return (
@@ -17,42 +16,42 @@ function HeaderDesktop() {
 
         <nav className="flex items-center gap-6 font-common font-light">
           <Link
-            href="/bases-numericas"
+            href="/number-bases"
             className={`text-xs text-white hover:underline underline-offset-6 transform ${
-              pathname.includes("/bases-numericas") && "underline"
+              pathname.includes("/number-bases") && "underline"
             }`}
           >
             Bases numéricas
           </Link>
 
           <Link
-            href="/aritmetica-binaria"
+            href="/binary-arithmetic"
             className={`text-xs text-white hover:underline underline-offset-6 transform ${
-              pathname.includes("/aritmetica-binaria") && "underline"
+              pathname.includes("/binary-arithmetic") && "underline"
             }`}
           >
             Aritmética binária
           </Link>
 
           <Link
-            href="/compressao-imagens"
+            href="/image-compression"
             className={`text-xs text-white hover:underline underline-offset-6 transform ${
-              pathname.includes("/compressao-imagens") && "underline"
+              pathname.includes("/image-compression") && "underline"
             }`}
           >
             Compressão de imagens
           </Link>
 
           <Link
-            href="/criptografia"
+            href="/cryptography"
             className={`text-xs text-white hover:underline underline-offset-6 transform ${
-              pathname.includes("/criptografia") && "underline"
+              pathname.includes("/cryptography") && "underline"
             }`}
           >
             Criptografia
           </Link>
 
-          <Link href="/configuracoes">
+          <Link href="/settings">
             <SlidersHorizontal size={20} weight="fill" className="text-white ml-6" />
           </Link>
         </nav>
@@ -61,101 +60,3 @@ function HeaderDesktop() {
   );
 }
 
-function HeaderMobile() {
-  const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="md:hidden flex flex-col fixed z-100">
-      {/* Header */}
-      <header className="fixed top-0 left-0 w-full h-12 shadow-md bg-linear-to-r from-blue to-purple z-50 flex items-center justify-between px-4">
-        <Link href="/configuracoes">
-          <SlidersHorizontal size={24} weight="fill" className="text-white" />
-        </Link>
-
-        <Link
-          href="/"
-          className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-white font-title"
-        >
-          Lorem Ipsum
-        </Link>
-
-        <button onClick={() => setOpen(true)} className="hover:cursor-pointer">
-          <List size={24} className="text-white" />
-        </button>
-      </header>
-
-      {/* Menu suspenso */}
-      {open && (
-        <div className="fixed top-12 left-0 w-full z-40">
-          {/* Backdrop abaixo do header */}
-          <div
-            className="fixed top-12 left-0 w-full h-[calc(100vh-3rem)] bg-black/40"
-            onClick={() => setOpen(false)}
-          />
-
-          {/* Menu */}
-          <nav className="relative bg-white w-full py-6 px-4 flex flex-row justify-between gap-4 shadow-lg">
-            <div className="flex flex-col gap-3 font-common">
-              <Link
-                href="/bases-numericas"
-                onClick={() => setOpen(false)}
-                className={`text-sm hover:underline underline-offset-6 transform ${
-                  pathname === "/bases-numericas" && "underline"
-                }`}
-              >
-                Bases numéricas
-              </Link>
-
-              <Link
-                href="/aritmetica-binaria"
-                onClick={() => setOpen(false)}
-                className={`text-sm hover:underline underline-offset-6 transform ${
-                  pathname === "/aritmetica-binaria" && "underline"
-                }`}
-              >
-                Aritmética binária
-              </Link>
-
-              <Link
-                href="/compressao-imagens"
-                onClick={() => setOpen(false)}
-                className={`text-sm hover:underline underline-offset-6 transform ${
-                  pathname === "/compressao-imagens" && "underline"
-                }`}
-              >
-                Compressão de imagens
-              </Link>
-
-              <Link
-                href="/criptografia"
-                onClick={() => setOpen(false)}
-                className={`text-sm hover:underline underline-offset-6 transform ${
-                  pathname === "/criptografia" && "underline"
-                }`}
-              >
-                Criptografia
-              </Link>
-            </div>
-
-            <button
-              className="self-start hover:cursor-pointer"
-              onClick={() => setOpen(false)}
-            >
-              <X size={18} />
-            </button>
-          </nav>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function Header() {
-  return (
-    <>
-      <HeaderDesktop />
-      <HeaderMobile />
-    </>
-  );
-}

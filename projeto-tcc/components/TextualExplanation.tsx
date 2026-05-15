@@ -23,7 +23,7 @@ export default function TextualExplanation({
             onClick={onClose}
           />
 
-          {/* Container centralizador */}
+          {/* Centered container */}
           <div className="fixed inset-0 flex items-center justify-center z-50">
             {/* Modal */}
             <motion.div
