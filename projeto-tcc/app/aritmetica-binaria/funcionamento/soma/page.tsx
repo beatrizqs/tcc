@@ -65,8 +65,7 @@ export default function Soma() {
     const result: Step[] = [];
 
     // Deixa os dois valores com o mesmo comprimento
-    const diff = longerValue.length - shorterValue.length;
-    shorterValue = "0".repeat(diff) + shorterValue;
+    shorterValue = shorterValue.padStart(longerValue.length, "0");
 
     let carry = 0;
 
