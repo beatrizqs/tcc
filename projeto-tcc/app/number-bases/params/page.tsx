@@ -1,6 +1,10 @@
 "use client";
 
-import ParamsPage, { Field, Mode, ValidationResult } from "@/components/ParamsPage";
+import ParamsPage, {
+  Field,
+  Mode,
+  ValidationResult,
+} from "@/components/ParamsPage";
 import { TableRow } from "@/components/Table";
 import { model } from "@/lib/models/number-bases";
 import { Base, BASE_LABELS, BASES, isBinary } from "@/utils/bases";
@@ -22,11 +26,10 @@ export default function BasesNumericas() {
 
     const { number, sourceBase } = source;
 
-    const page = sourceBase === BASES.DECIMAL ? "decimal-binary" : "binary-decimal"
+    const page =
+      sourceBase === BASES.DECIMAL ? "decimal-binary" : "binary-decimal";
 
-    router.push(
-      `/number-bases/animation/${page}?number=${number}`
-    );
+    router.push(`/number-bases/animations/${page}?number=${number}`);
   };
 
   const handleChange = (name: string, value: number | string) => {
@@ -38,7 +41,7 @@ export default function BasesNumericas() {
 
   function validateFields(): ValidationResult {
     const errors: Record<string, string> = {};
-  
+
     if (mode === "preset") {
       if (!selectedModel) {
         errors.model = "Selecione um modelo";
@@ -52,18 +55,24 @@ export default function BasesNumericas() {
       }
 
       // Source and target bases must be different
-      if (values.baseOrigem && values.baseDestino && values.baseOrigem === values.baseDestino) {
-        errors.baseDestino = "Base destino deve ser diferente da base de origem"
+      if (
+        values.baseOrigem &&
+        values.baseDestino &&
+        values.baseOrigem === values.baseDestino
+      ) {
+        errors.baseDestino =
+          "Base destino deve ser diferente da base de origem";
       }
 
       if (values.baseOrigem && values.baseOrigem === BASES.BINARY) {
         // Validate binary digits
         if (!isBinary(values.numero.toString())) {
-          errors.numero = "Valor deve ser compatível com a base de origem selecionada"
+          errors.numero =
+            "Valor deve ser compatível com a base de origem selecionada";
         }
-      } 
+      }
     }
-  
+
     return {
       isValid: Object.keys(errors).length === 0,
       errors,

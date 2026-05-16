@@ -418,7 +418,7 @@ export default function BinaryDecimal() {
       </div>
 
       <TextualExplanation
-        explanation={explanations.numberBases.binary_decimal}
+        explanation={explanations.numberBases.binaryDecimal}
         onClose={() => {
           setShowExplanation(false);
         }}

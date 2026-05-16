@@ -1,76 +1,64 @@
 "use client";
 
-import Result from "@/components/number-bases/Result";
 import MainPageTitle from "@/components/MainPageTitle";
 import SidePageTitle from "@/components/SidePageTitle";
 import TextualExplanation from "@/components/TextualExplanation";
-import { BASES } from "@/utils/bases";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Button from "@/components/Button";
+import { explanations } from "@/utils/explanations";
 
 type Step = {
+  id: number;
   value: number;
   result: number;
   remainder: number;
 };
 
-type Clone = {
-  id: number;
-  value: number | string;
-  fromX: number;
-  fromY: number;
-  toX: number;
-  toY: number;
-  delay: number;
-};
-
 export default function DecimalBinario() {
-  const [currentStep, setCurrentStep] = useState(0); // Cálculo atual
-  const [visibleTokens, setVisibleTokens] = useState(1); // Elementos já renderizados da linha atual
-  const [visibleDigits, setVisibleDigits] = useState(0); // Exibir os dígitos do resultado após cada animação
-  const [clone, setClone] = useState<Clone | null>(null); // Clone do dígito do resto que será animado até a posição do resultado
-  const [line, setLine] = useState<{
-    id: number;
-    fromX: number;
-    fromY: number;
-    toX: number;
-    toY: number;
-  } | null>(null); // Linha do quociente até o dividendo da próxima linha
+  const searchParams = useSearchParams();
+  const number = searchParams.get("number") || "0";
+
+  // Animation control
+  const [currentStep, setCurrentStep] = useState<Step>();
+  const [visibleDigits, setVisibleDigits] = useState(0); // Result digits
+  const [highlight, setHighlight] = useState<"value" | "result" | undefined>(); // Highlights result -> value of the next calculation
+  const [currentValue, setCurrentValue] = useState(parseInt(number)); // Result of the division, will be the dividend on the next
+  const [animationSession, setAnimationSession] = useState(0); // Differentiate between sessions to avoid reverse animations (layoutId) when restarting
+  const [showCurrentRemainder, setShowCurrentRemainder] = useState(false);
+
+  // Buttons
+  const [showExplanation, setShowExplanation] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
+  // Refs
   const pauseRef = useRef(false);
-
-  // Referências para as animações
-  const quotientRefs = useRef<(HTMLSpanElement | null)[]>([]); // Referências para os dígitos do resultado da operação
-  const dividendRefs = useRef<(HTMLSpanElement | null)[]>([]); // Referências para os dígitos do dividendo da operação
-  const remainderRefs = useRef<(HTMLSpanElement | null)[]>([]); // Referências para os restos de cada linha do cálculo
-  const resultRefs = useRef<(HTMLSpanElement | null)[]>([]); // Referências para os dígitos do resultado final
-
-  const searchParams = useSearchParams();
-  const numero = searchParams.get("numero") || "0";
+  const animationIdRef = useRef(0);
 
   const steps = useMemo(() => {
     const result: Step[] = [];
 
-    let currentValue = parseInt(numero);
+    let currentValue = parseInt(number);
+    let index = 0;
 
     while (currentValue > 0) {
       const nextValue = Math.floor(currentValue / 2);
 
       result.push({
+        id: index,
         value: currentValue,
         result: nextValue,
         remainder: currentValue % 2,
       });
 
       currentValue = nextValue;
+      index++;
     }
 
     return result;
-  }, [numero]);
+  }, [number]);
 
   const result = useMemo(() => {
     return steps
@@ -80,10 +68,22 @@ export default function DecimalBinario() {
   }, [steps]);
 
   const reset = () => {
-    setCurrentStep(0);
-    setVisibleTokens(1);
+    setCurrentStep(undefined);
+    setCurrentValue(parseInt(number));
+    setVisibleDigits(0);
+    setHighlight(undefined);
     setIsPaused(false);
-    runCalculationsAnimation();
+    setShowCurrentRemainder(false);
+    runAnimation();
+  };
+
+  const finish = () => {
+    setCurrentStep(steps.at(-1));
+    setCurrentValue(0);
+    setVisibleDigits(result.length);
+    setHighlight(undefined);
+    setShowCurrentRemainder(false);
+    setIsRunning(false);
   };
 
   const waitIfPaused = () => {
@@ -100,289 +100,287 @@ export default function DecimalBinario() {
     });
   };
 
+  const waitStep = async (ms: number, id: number) => {
+    await delay(ms);
+    await waitIfPaused();
+
+    if (id !== animationIdRef.current) {
+      throw new Error("animation-cancelled");
+    }
+  };
+
   useEffect(() => {
     pauseRef.current = isPaused;
   }, [isPaused]);
 
-  async function animateQuotientToDividend(index: number) {
-    const quotientEl = quotientRefs.current[index];
-    const dividendEl = dividendRefs.current[index + 1];
+  async function runAnimation() {
+    // Avoid overlap of different renders if animation is restarted before finishing
+    const id = ++animationIdRef.current;
+    setAnimationSession(id);
 
-    if (!quotientEl || !dividendEl) return;
+    try {
+      setIsRunning(true);
+      if (id !== animationIdRef.current) return;
+      await waitStep(300, id);
 
-    const from = getCenter(quotientEl.getBoundingClientRect());
-    const to = getCenter(dividendEl.getBoundingClientRect());
+      for (let i = 0; i < steps.length; i++) {
+        setCurrentStep(steps[i]);
+        if (i > 0) setHighlight("value");
+        await waitStep(1000, id);
 
-    return new Promise<void>((resolve) => {
-      setLine({
-        id: index,
-        fromX: from.x,
-        fromY: from.y,
-        toX: to.x,
-        toY: to.y,
-      });
+        setHighlight(undefined);
+        await waitStep(700, id);
 
-      setTimeout(() => {
-        setLine(null);
-        resolve();
-      }, 800);
-    });
-  }
+        setHighlight("result");
+        await waitStep(500, id);
 
-  async function animateRemainderToResult(index: number) {
-    const remainderEl = remainderRefs.current[index];
+        setShowCurrentRemainder(true);
+        await waitStep(500, id);
 
-    // Índice invertido pois vai montando o binário de trás para frente
-    const targetIndex = result.length - 1 - index;
-    const resultEl = resultRefs.current[targetIndex];
+        setCurrentValue(steps[i].result);
+        await waitStep(1000, id);
 
-    if (!remainderEl || !resultEl) return;
-
-    const from = remainderEl.getBoundingClientRect();
-    const to = resultEl.getBoundingClientRect();
-
-    // Calcula posição central das origens
-    const fromX = from.left - 18;
-    const fromY = from.top - 46;
-
-    // Calcula posição central dos destinos
-    const toX = to.left - 18;
-    const toY = to.top - 46;
-
-    return new Promise<void>((resolve) => {
-      setClone({
-        id: index,
-        value: steps[index].remainder,
-        fromX,
-        fromY,
-        toX,
-        toY,
-        delay: 0,
-      });
-
-      // Resolve quando animação acabar
-      setTimeout(resolve, 1600);
-    });
-  }
-
-  async function runCalculationsAnimation() {
-    setIsRunning(true);
-    setVisibleDigits(0);
-
-    for (let i = 0; i < steps.length; i++) {
-      await waitIfPaused();
-
-      setCurrentStep(i);
-      setVisibleTokens(1);
-
-      // Passo a passo do cálculo da linha
-      for (let t = 1; t < 5; t++) {
-        await delay(600);
-        setVisibleTokens((v) => v + 1);
+        setVisibleDigits((prev) => prev + 1);
+        setShowCurrentRemainder(false);
+        await waitStep(1800, id);
       }
 
-      // Espera o resto aparecer
-      await delay(900);
-
-      // Animação que leva o valor do quociente até o dividendo da próxima linha
-      if (i < steps.length - 1) {
-        // Renderiza a próxima linha para poder criar a referência da animação
-        setCurrentStep(i + 1);
-        setVisibleTokens(1);
-        await nextFrame();
-        await animateQuotientToDividend(i);
+      setIsRunning(false);
+    } catch (error) {
+      if ((error as Error).message !== "animation-cancelled") {
+        console.error(error);
       }
-
-      await delay(300);
     }
-
-    runResultAnimation();
   }
 
-  async function runResultAnimation() {
-    setIsRunning(true);
-    setVisibleDigits(0);
-
-    for (let i = 0; i < steps.length; i++) {
-      await waitIfPaused();
-
-      // Animação que leva o valor do resto até o resultado
-      await animateRemainderToResult(i);
-
-      await delay(300);
-
-      // Permite visualização do item no resultado
-      setVisibleDigits((d) => d + 1);
-    }
-
-    setIsRunning(false);
-  }
-
-  const delay = async (ms: number) => {
-    const start = Date.now();
-
-    while (Date.now() - start < ms) {
-      await waitIfPaused();
-      await new Promise((r) => setTimeout(r, 16));
-    }
+  const delay = (ms: number) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   };
-
-  const nextFrame = () => new Promise(requestAnimationFrame);
-
-  const getCenter = (pos: DOMRect) => ({
-    x: pos.left + pos.width / 2,
-    y: pos.top + pos.height / 2,
-  });
 
   return (
     <div className="flex flex-col w-full h-[calc(100vh-90px)]">
-      <SidePageTitle
-        title={"Bases numéricas"}
-        href={"/bases-numericas/parametros"}
-      />
+      <SidePageTitle title={"Bases numéricas"} href={"/number-bases/params"} />
       <MainPageTitle title="Decimal → Binário" noMargin />
 
-      <div className="grid grid-cols-2 w-full overflow-y-auto flex-1">
-        {/* Operações */}
-        <div className="flex flex-col gap-6 text-2xl p-10 font-semibold text-xl font-title mx-auto">
-          {(isRunning || currentStep > 0) &&
-            steps.slice(0, currentStep + 1).map((step, index) => {
-              const tokens = [step.value, "÷", 2, "=", step.result];
+      <div className="flex flex-col items-center justify-center  w-full overflow-y-auto flex-1 py-10 2xl:py-20 font-title ">
+        {/* Operations */}
+        <div className="border-1 border-black rounded-md">
+          <table className=" text-xl 2xl:text-2xl w-full">
+            <tbody>
+              {/* Headers */}
+              <tr>
+                {["Divisão", "Resto"].map((header, i) => {
+                  return (
+                    <td
+                      key={`${header}-${i}`}
+                      className={`p-3 border-black border-1 text-blue text-center font-semibold w-[300px]
+                        `}
+                    >
+                      {header}
+                    </td>
+                  );
+                })}
+              </tr>
 
-              const tokensToShow =
-                index === currentStep ? visibleTokens : tokens.length;
-
-              const resultAlreadyVisible = tokensToShow >= tokens.length;
-
-              return (
-                <div
-                  className="grid grid-cols-2 w-[350px] gap-4"
-                  key={`divisions-${index}`}
-                >
-                  <div
-                    key={index}
-                    className={`flex gap-4 items-center ${
-                      visibleTokens <= 1 && index >= currentStep
-                        ? "opacity-0"
-                        : "opacity-100"
-                    }`}
-                  >
-                    {/* Operação */}
-                    {tokens.slice(0, tokensToShow).map((token, i) => {
-                      const isDividend = i === 0;
-                      const isResult = i === 4;
-
-                      return (
-                        <motion.span
-                          key={i}
-                          initial={{ opacity: 0, y: -6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className={`transition-colors duration-300 ${
-                            isResult ? "text-blue" : "text-black"
-                          }`}
-                          ref={(el) => {
-                            if (isDividend) {
-                              dividendRefs.current[index] = el;
-                            } else if (isResult) {
-                              quotientRefs.current[index] = el;
-                            }
+              {/* Calculation and remainder */}
+              <tr>
+                {/* Division */}
+                <td className="p-3 border-black border-1 border-t-2 text-black text-center">
+                  <div className="h-[40px] overflow-hidden flex items-center justify-center">
+                    <AnimatePresence mode="wait">
+                      {currentStep && (
+                        <motion.div
+                          key={`division-${currentStep.id}`}
+                          initial={{ y: 30, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -30, opacity: 0 }}
+                          transition={{
+                            duration: 0.4,
+                            ease: "easeInOut",
                           }}
+                          className="flex flex-row items-center justify-center gap-2"
                         >
-                          {token}
-                        </motion.span>
-                      );
-                    })}
+                          <motion.div
+                            transition={{
+                              duration: 0.4,
+                              ease: "easeOut",
+                            }}
+                            className={`transition-colors duration-300 ${
+                              highlight === "value" ? "text-blue" : ""
+                            }`}
+                          >
+                            {currentStep.value}
+                          </motion.div>
+                          ÷ 2 =
+                          <motion.div
+                            transition={{
+                              duration: 0.4,
+                              ease: "easeOut",
+                            }}
+                            className={`transition-colors duration-300 ${
+                              highlight === "result" ? "text-blue" : ""
+                            }`}
+                          >
+                            {currentStep.result}
+                          </motion.div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
+                </td>
 
-                  <div>
-                    {/* Resto */}
-                    {resultAlreadyVisible && (
-                      <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.6, duration: 0.3 }}
-                      >
-                        Resto ={" "}
-                        <span
-                          ref={(el) => {
-                            remainderRefs.current[index] = el!;
-                          }}
+                {/* Remainder */}
+                <td className="p-3 border-black border-1 border-t-2 text-black text-center">
+                  <div className="h-[40px] overflow-hidden flex items-center justify-center">
+                    <AnimatePresence mode="wait">
+                      {currentStep && (
+                        <motion.div
+                          key={`remainder-${currentStep.id}`}
+                          initial={{ opacity: 0, y: 0 }}
+                          animate={
+                            currentStep && showCurrentRemainder
+                              ? { opacity: 1, y: 0 }
+                              : { opacity: 0, y: 0 }
+                          }
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="flex items-center justify-center"
                         >
-                          {step.remainder}
-                        </span>
-                      </motion.div>
-                    )}
+                          <motion.div
+                            layoutId={`remainder-${currentStep.id}-${animationSession}`}
+                            transition={{
+                              duration: 0.4,
+                              ease: "easeOut",
+                            }}
+                            className="z-10"
+                          >
+                            {currentStep.remainder}
+                          </motion.div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                </div>
-              );
-            })}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        {/* Resultado */}
-        {(isRunning || currentStep > 0) && (
+        {/* Current value */}
+        <motion.div className="flex flex-row gap-2 text-base 2xl:text-lg items-center mt-5">
+          <p>Valor atual =</p>
+          <div className="border border-blue rounded-md py-[2px] px-2 min-w-10 text-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentValue}
+                initial={{ opacity: 0, y: 3 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -3 }}
+                transition={{
+                  duration: 0.35,
+                  ease: "easeOut",
+                }}
+              >
+                {currentValue}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </motion.div>
+
+        {/* Result */}
+        <motion.div
+          key="result"
+          layout
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="flex items-center justify-center w-full h-full p-10"
+        >
           <motion.div
-            key="result"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            layout
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="flex items-center w-full h-full p-10"
+            className="flex items-center flex-row"
           >
-            <Result
-              orientation="vertical"
-              initialValue={{ value: parseInt(numero), base: "10" }}
-              finalValue={{ value: parseInt(result), base: "2" }}
-              numberOfVisibleDigits={visibleDigits}
-              refs={resultRefs}
-            />
+            {/* Initial value */}
+            <motion.div
+              layout
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="flex flex-row"
+            >
+              <p className="font-title font-bold text-black text-4xl 2xl:text-6xl place-self-start -mt-1">
+                {number}
+              </p>
+              <p className="font-title font-bold text-black text-lg 2xl:text-xl place-self-end -mb-1">
+                10
+              </p>
+            </motion.div>
+
+            <AnimatePresence mode="wait">
+              {currentStep && (
+                <motion.div
+                  key="final-result"
+                  initial={{ opacity: 0, x: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: -10, scale: 0.95 }}
+                  transition={{
+                    duration: 0.4,
+                    ease: "easeOut",
+                  }}
+                  className="flex items-center flex-row h-full"
+                >
+                  <p className="text-2xl font-semibold mx-3">→</p>
+                  {/* Final value */}
+                  <div className={`flex flex-row`}>
+                    {String(result)
+                      .split("")
+                      .map(
+                        (digit, i) =>
+                          i >= result.length - visibleDigits && (
+                            <motion.span
+                              key={i}
+                              layoutId={`remainder-${
+                                result.length - 1 - i
+                              }-${animationSession}`}
+                              transition={{
+                                duration: 1,
+                                ease: "easeOut",
+                              }}
+                              className={`font-title font-bold text-blue text-4xl 2xl:text-6xl ${
+                                i < result.length - visibleDigits
+                                  ? "opacity-0"
+                                  : "opacity-100"
+                              }`}
+                            >
+                              {digit}
+                            </motion.span>
+                          )
+                      )}
+                    {visibleDigits >= result.length && (
+                      <motion.p
+                        initial={{ opacity: 0, y: 3 }}
+                        animate={
+                          visibleDigits >= result.length
+                            ? { opacity: 1, y: 0 }
+                            : { opacity: 0, y: 3 }
+                        }
+                        transition={{
+                          duration: 0.4,
+                          ease: "easeOut",
+                          delay: 0.8,
+                        }}
+                        className={`font-title font-bold text-blue text-lg 2xl:text-xl place-self-end -mb-1`}
+                      >
+                        2
+                      </motion.p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
-        )}
+        </motion.div>
       </div>
 
-      {/* Clone para animações */}
-      {clone && (
-        <motion.div
-          key={clone.id}
-          initial={{
-            x: clone.fromX,
-            y: clone.fromY,
-            translateX: "-50%",
-            translateY: "-50%",
-          }}
-          animate={{
-            x: clone.toX,
-            y: clone.toY,
-          }}
-          transition={{
-            duration: 2,
-            ease: "easeOut",
-          }}
-          onAnimationComplete={() => {
-            setClone(null);
-          }}
-          className="fixed font-bold text-blue pointer-events-none text-xl font-title"
-        >
-          {clone.value}
-        </motion.div>
-      )}
-
-      {/* Linha para animações */}
-      {line && (
-        <motion.svg className="fixed inset-0 pointer-events-none">
-          <motion.path
-            d={`M ${line.fromX} ${line.fromY} L ${line.toX} ${line.toY}`}
-            stroke="#3b82f6"
-            strokeWidth={2}
-            fill="transparent"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: [0, 1, 0] }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          />
-        </motion.svg>
-      )}
-
-      <div className={`flex flex-row gap-4 items-center mx-auto mt-8`}>
+      {/* Buttons */}
+      <div className={`flex flex-row gap-4 items-center mx-auto  mb-5`}>
         {isRunning ? (
           <>
             <Button
@@ -390,21 +388,31 @@ export default function DecimalBinario() {
               onClick={() => setIsPaused((p) => !p)}
             />
             {isPaused && <Button text={"Reiniciar"} onClick={reset} />}
+            {isPaused && <Button text={"Finalizar"} onClick={finish} />}
           </>
         ) : (
           <>
             <Button
-              text={currentStep === 0 ? "Iniciar" : "Repetir"}
+              text={!currentStep ? "Iniciar" : "Repetir"}
               onClick={reset}
             />
-            <Button text="Explicação" onClick={() => {}} />
+            <Button
+              text="Explicação"
+              onClick={() => {
+                setShowExplanation(true);
+              }}
+            />
           </>
         )}
       </div>
 
-      {/* <div className="mt-auto">
-        <TextualExplanation explanation="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur" />
-      </div> */}
+      <TextualExplanation
+        explanation={explanations.numberBases.decimalBinary}
+        onClose={() => {
+          setShowExplanation(false);
+        }}
+        isOpen={showExplanation}
+      />
     </div>
   );
 }

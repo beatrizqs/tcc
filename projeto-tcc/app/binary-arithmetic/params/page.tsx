@@ -26,10 +26,10 @@ export default function AritmeticaBinaria() {
 
     const { value1, value2, operacao } = source;
 
-    const page = operacao === OPERATIONS.ADDITION ? "addition" : "subtraction"
+    const page = operacao === OPERATIONS.ADDITION ? "addition" : "subtraction";
 
     router.push(
-      `/binary-arithmetic/animation/${page}?value1=${value1}&value2=${value2}`
+      `/binary-arithmetic/animations/${page}?value1=${value1}&value2=${value2}`
     );
   };
 

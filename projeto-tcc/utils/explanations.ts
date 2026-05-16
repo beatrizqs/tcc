@@ -30,7 +30,7 @@ Com isso, também é possível calcular a porcentagem de redução obtida com a 
   },
 
   numberBases: {
-    binary_decimal: `A conversão de um número binário para um decimal é baseada no uso das potências de 2.\n
+    binaryDecimal: `A conversão de um número binário para um decimal é baseada no uso das potências de 2.\n
     Cada dígito binário (bit) representa uma potência de 2, de acordo com sua posição. Conta-se essas posições da direita para a esquerda, começando do zero. Dessa forma, o bit mais à direita (bit menos significativo) corresponde a 2⁰, o próximo corresponde a 2¹, e assim por diante.\n
     Após definir todas as correspondências entre bits e potências, considera-se apenas as potências cujo bit assocido é 1, e depois soma-se esses valores.\n
     Por exemplo, para o número binário 1010:\n
@@ -38,6 +38,18 @@ Com isso, também é possível calcular a porcentagem de redução obtida com a 
     Posições:   3   2   1   0\n
     Potências:  2³  2²  2¹  2⁰\n
     Selecionando apenas os bits iguais a 1, temos: 2³ + 2¹ = 8 + 2 = 10`,
+
+    decimalBinary: `A conversão de um número decimal para binário é realizada através de divisões consecutivas por 2.\n
+    Para cada divisão (inteira, sem números decimais), guarda-se o valor do resto. Ele que irá compor o resultado final.\n
+    Ao dividir o valor original por 2, o valor do resto será o último bit (LSB) no binário correspondente. Em seguida, divide-se o resultado da divisão anterior por 2, e o resto será o penúltimo bit no binário correspondente. Repete-se esse processo até chegar em uma divisão que resulte em 0.\n
+    Por exemplo, para o número decimal 35:\n
+    1. 35 ÷ 2 = 17, resto 1\n
+    2. 17 ÷ 2 = 8, resto 1\n
+    3. 8 ÷ 2 = 4, resto 0\n
+    4. 4 ÷ 2 = 2, resto 0\n
+    5. 2 ÷ 2 = 1, resto 0\n
+    6. 1 ÷ 2 = 0, resto 1\n
+    Lendo os restos de baixo para cima (do último até o primeiro), observa-se o valor correspondente em binário: 100011`
   },
 
   binaryArithmetic: {
