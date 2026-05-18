@@ -435,7 +435,7 @@ export default function RLE() {
           </div>
         </div>
 
-        {/* Botões */}
+        {/* Buttons */}
         <div className={`flex flex-row gap-4 items-center mx-auto mt-8 mb-5`}>
           {isRunning ? (
             <>
