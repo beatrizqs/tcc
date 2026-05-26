@@ -27,7 +27,28 @@ Na visualização apresentada, o sistema percorre a imagem e agrupa pixels conse
 Ao final do processo, é possível calcular o tamanho da imagem comprimida considerando que cada par ocupa uma quantidade fixa de bytes (por exemplo, 1 byte para a quantidade e 1 byte para o valor, dependendo da implementação). Esse valor pode então ser comparado com o tamanho original da imagem, que normalmente considera 1 byte por pixel.\n
 Com isso, também é possível calcular a porcentagem de redução obtida com a compressão.\n
 É importante destacar que o RLE é mais eficiente em imagens com alta redundância, ou seja, com grandes áreas de cor uniforme. Em imagens com muita variação de cores (como fotografias), o algoritmo pode não ser eficaz e, em alguns casos, pode até aumentar o tamanho dos dados.`,
+
+    huffman: `O algoritmo de compressão de Huffman é uma técnica de compressão sem perdas que reduz o tamanho de uma imagem ao atribuir códigos para cada tipo de informação (como cor), sendo que informações mais frequentes recebem códigos mais curtos.\n
+    Para isso, cria-se uma tabela auxiliar que contém todos os tipos de informação contidos na imagem e a frequência em que aparecem. Em seguida, cria-se códigos para cada tipo de informação.\n
+    O processo de criação dos códigos é o seguinte: organiza-se os dados da tabela de forma decrescente, onde o primeiro seria o símbolo mais frequente e o último, o menos frequente. Em seguida, agrupa-se os dois dados menos frequentes, formando um novo tipo de informação (que refere-se aos que foram agrupados), cuja frequência é a soma das frequência dos dados agrupados.\n
+    Tipicamente, a cada agrupamento, o dado menos frequente recebe um 0 no ínicio do seu código, enquanto o segundo menos frequente recebe 1. Esse processo é repetido até que sobre apenas um dado, cuja frequência deve ser igual à soma de todas as frequências iniciais.\n
+    O tamanho final é calculado pelo bit array gerado (substituir cada símbolo no dado original pelo seu código) + tamanho da tabela. Vale ressaltar que, para dados muito pequenos, a codificação de Huffman pode acabar aumentando o tamanho, já que precisa enviar a tabela junto.\n
+    Por exemplo, aplicando Huffman à sequência de dados BANANA (para strings aplica-se o mesmo princípio, porém os tipos de dados são letras ao invés de cores):\n
+    Tabela:\n
+    B | 1\n
+    A | 3\n
+    N | 2\n
+    1. A3 N2 B1, onde N2 e B1 serão agrupados, formando NB3. Como B é o menor, seu código recebe 0, e N recebe 1.\n
+    2. A3 NB3, onde A3 e NB3 serão agrupados, formando ANB6. Como NB é o menor, seu código recebe 0 (então N agora tem código 01, e B tem código 00), e A recebe 1\n
+    Tabela final:\n
+    B | 1 | 00\n
+    A | 3 | 1\n
+    N | 2 | 01\n
+    Para poder recriar o dado original, é necessário enviar a tabela contendo símbolo + código. No exemplo acima, temos B + 00 = 8 bits + 2 bits = 10 bits, A + 1 = 8 bits + 1 bit = 9 bits e N + 01 = 8 bits + 2 bits = 10 bits, tendo tamanho total de 29 bits. 
+    Recriando a mensagem original, temos BANANA > 001011011.\n 
+    Note que utilizamos 9 bits para representar a mensagem e 29 bits para a tabela, enquanto a versão original utilizava (assumindo ASCII ou UTF-8) 8 bits (1 byte) por caractere. Dessa forma, reduzimos o tamanho de 48 bits para 38.`
   },
+
 
   numberBases: {
     binaryDecimal: `A conversão de um número binário para um decimal é baseada no uso das potências de 2.\n

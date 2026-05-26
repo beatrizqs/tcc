@@ -119,6 +119,25 @@ export default function Huffman() {
     return black_white;
   };
 
+  const getRGB = (color: ColorIndex | number) => {
+    const [r, g, b] =
+      representation === IMG_REPRESENTATION.COLORS
+        ? PALETTE[color as ColorIndex]
+        : [color, color, color];
+
+    return [r, g, b];
+  };
+
+  const shouldReorder = (
+    prevState: BlockGroupingStep,
+    nextState: BlockGroupingStep
+  ) => {
+    return (
+      prevState.currentBlocks.at(-1) !== nextState.currentBlocks.at(-1) &&
+      prevState.type === "reposition"
+    );
+  };
+
   const insertSorted = <T,>(
     arr: T[],
     item: T,
@@ -296,39 +315,69 @@ export default function Huffman() {
     return { table, tableSteps, blockGroupingSteps };
   }, [grid]);
 
-  const compressed_size = useMemo(() => {
-    const size = table.reduce((acc, block) => {
+  const {compressed_size, table_size} = useMemo(() => {
+    const compressed_size = table.reduce((acc, block) => {
       return block.code.length * block.frequency + acc;
       // New size is calculated by how many bits are needed to represent the image
       // Recreating the original bitmap, we swap the block for the new code, where each number is a bit
     }, 0);
 
-    return size;
+    const table_size = table.reduce((acc, block) => {
+      return block.code.length + 8 + acc;
+      // Table size is calculated by how many bits are needed to represent each block + its code
+    }, 0);
+
+    return {compressed_size, table_size};
   }, [table]);
 
-  const getRGB = (color: ColorIndex | number) => {
-    const [r, g, b] =
-      representation === IMG_REPRESENTATION.COLORS
-        ? PALETTE[color as ColorIndex]
-        : [color, color, color];
-
-    return [r, g, b];
-  };
-
   const reset = () => {
-    setCurrentBlockGroupingStep(undefined);
+    setIsRunning(false);
+
+    setCurrentTableStep(undefined);
     setHighlightedPixels(0);
+    setVisibleRows(0);
+    setHighlightedRow(undefined);
+    setVisibleCodeDigits({});
+
+    setRenderBlockGrouping(false);
+    setCurrentBlockGroupingStep(undefined);
+    setHighlightedBlocks([]);
+    setShowNotUsedRows(false);
+    setMerge(false);
+    setMessage("");
+
+    setShowCompressedArray(0);
+    setHighlightedPixelBitArray(-1);
+
     setIsPaused(false);
+
     setShowResult(false);
 
     runAnimation();
   };
 
   const finish = () => {
-    setShowResult(true);
-    //setVisibleResult(steps.length);
-    setHighlightedPixels(0);
     setIsRunning(false);
+
+    setCurrentTableStep(tableSteps.at(-1));
+    setHighlightedPixels(0);
+    setVisibleRows(table.length);
+    setHighlightedRow(undefined);
+    const codes = Object.fromEntries(
+      table.map((item) => [item.color, item.code.length])
+    );
+    setVisibleCodeDigits(codes);
+
+    setRenderBlockGrouping(false);
+    setCurrentBlockGroupingStep(blockGroupingSteps.at(-1));
+    setHighlightedBlocks([]);
+    setShowNotUsedRows(false);
+    setMerge(false);
+    setMessage("");
+
+    setShowCompressedArray(grid.length + 1);
+    setHighlightedPixelBitArray(-1);
+    setShowResult(true);
   };
 
   const waitIfPaused = () => {
@@ -365,16 +414,6 @@ export default function Huffman() {
       );
     }
   }, [table]);
-
-  const shouldReorder = (
-    prevState: BlockGroupingStep,
-    nextState: BlockGroupingStep
-  ) => {
-    return (
-      prevState.currentBlocks.at(-1) !== nextState.currentBlocks.at(-1) &&
-      prevState.type === "reposition"
-    );
-  };
 
   async function runAnimation() {
     // Avoid overlap of different renders if animation is restarted before finishing
@@ -555,7 +594,7 @@ export default function Huffman() {
         />
         <MainPageTitle title="Codificação de Huffman" noMargin />
 
-        <div className="flex flex-row w-full px-8 mt-10 gap-8">
+        <div className="flex flex-row w-full px-8 mt-10 gap-8 2xl:max-w-[60%] 2xl:mx-auto">
           {/* Image */}
           <div className="flex flex-col items-center gap-1 font-title justify-center  w-1/3">
             <div className="text-base font-semibold">
@@ -594,7 +633,8 @@ export default function Huffman() {
                           currentTableStep?.block.color === currPixel &&
                           index !== undefined &&
                           index <= highlightedPixels) ||
-                        pos === highlightedPixelBitArray) && isRunning;
+                          pos === highlightedPixelBitArray) &&
+                        isRunning;
 
                       return (
                         <td
@@ -928,13 +968,13 @@ export default function Huffman() {
           <AnimatePresence>
             {showCompressedArray > 0 && (
               <motion.div
-              initial={{ opacity: 0, y: 0 }}
-              animate={
-                showCompressedArray > 0
-                  ? { opacity: 1, y: 0 }
-                  : { opacity: 0, y: 0}
-              }
-              exit={{ opacity: 0, y: 0 }}
+                initial={{ opacity: 0, y: 0 }}
+                animate={
+                  showCompressedArray > 0
+                    ? { opacity: 1, y: 0 }
+                    : { opacity: 0, y: 0 }
+                }
+                exit={{ opacity: 0, y: 0 }}
                 className="flex flex-col font-title gap-6"
               >
                 {/* Bit array */}
@@ -945,7 +985,7 @@ export default function Huffman() {
                       ? { opacity: 1, y: 0 }
                       : { opacity: 0, y: 3 }
                   }
-                  className="flex flex-col gap-1 w-full"
+                  className="flex flex-col gap-2 w-full"
                 >
                   <p className="text-lg font-title text-blue">
                     <strong>Bit Array</strong> (representação de cada pixel com
@@ -966,12 +1006,30 @@ export default function Huffman() {
 
                             const [r, g, b] = getRGB(currPixel);
 
+                            let textColor;
+
+                            switch (representation) {
+                              case IMG_REPRESENTATION.BLACK_AND_WHITE:
+                                textColor = currPixel;
+                                break;
+                              case IMG_REPRESENTATION.GRAYSCALE:
+                                textColor = currPixel > 128 ? 0 : 255;
+                                break;
+                              case IMG_REPRESENTATION.COLORS:
+                                const tonality = black_and_white([
+                                  currPixel as ColorIndex,
+                                ]);
+
+                                // If background color goes to white, text should be black and vice versa
+                                textColor = tonality[0] === 255 ? 0 : 255;
+                            }
+
                             return (
                               <td
                                 key={`bitarray-cell-${j}`}
                                 className={`text-center transition-all ease-in-out duration-100 border-1 border-black h-7 `}
                                 style={{
-                                  color: `rgb(${r}, ${g}, ${b})`,
+                                  backgroundColor: `rgb(${r}, ${g}, ${b})`,
                                 }}
                               >
                                 <motion.div
@@ -981,6 +1039,9 @@ export default function Huffman() {
                                       ? { opacity: 1, y: 0 }
                                       : { opacity: 0, y: 0 }
                                   }
+                                  style={{
+                                    color: `rgb(${textColor}, ${textColor}, ${textColor})`,
+                                  }}
                                 >
                                   {row!.code}
                                 </motion.div>
@@ -1003,15 +1064,16 @@ export default function Huffman() {
                   >
                     <div className="flex flex-row gap-3 text-black text-2xl mx-auto font-title font-bold items-center ">
                       <p>{size * size * 8} bits → </p>
+                      <p>{compressed_size} + {table_size} (tabela) → </p>
                       <div className="border border-blue rounded-md py-1 px-3 text-blue">
-                        {compressed_size} bits
+                        {compressed_size + table_size} bits
                       </div>
                     </div>
                     <p className="text-lg font-title text-center text-blue">
                       {" "}
                       Redução de{" "}
                       {100 -
-                        Math.round((compressed_size * 100) / (size * size * 8))}
+                        Math.round(((compressed_size + table_size) * 100) / (size * size * 8))}
                       %
                     </p>
                   </motion.div>
@@ -1054,7 +1116,7 @@ export default function Huffman() {
       </div>
 
       <TextualExplanation
-        explanation={explanations.imageCompression.rle}
+        explanation={explanations.imageCompression.huffman}
         onClose={() => {
           setShowExplanation(false);
         }}
