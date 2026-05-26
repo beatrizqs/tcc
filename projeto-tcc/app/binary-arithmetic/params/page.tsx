@@ -24,9 +24,9 @@ export default function AritmeticaBinaria() {
 
     if (!source) return;
 
-    const { value1, value2, operacao } = source;
+    const { value1, value2, operation } = source;
 
-    const page = operacao === OPERATIONS.ADDITION ? "addition" : "subtraction";
+    const page = operation === OPERATIONS.ADDITION ? "addition" : "subtraction";
 
     router.push(
       `/binary-arithmetic/animations/${page}?value1=${value1}&value2=${value2}`

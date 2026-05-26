@@ -45,20 +45,20 @@ export default function BinaryDecimal() {
   const animationIdRef = useRef(0);
 
   const searchParams = useSearchParams();
-  const numero = searchParams.get("numero") || "";
+  const number = searchParams.get("number") || "";
 
-  const decimal = parseInt(numero, 2);
+  const decimal = parseInt(number, 2);
 
   const steps: Step[] = (() => {
     const result: Step[] = [];
-    const size = numero.length - 1;
+    const size = number.length - 1;
     let firstActiveBit = true;
     let index = 0;
 
     // Generates the steps for the iteration through the table numbers and presentation of the powers in the calculation
-    for (let i = 0; i < numero.length; i++) {
+    for (let i = 0; i < number.length; i++) {
       const power = size - i;
-      const binaryDigit = parseInt(numero[i]);
+      const binaryDigit = parseInt(number[i]);
 
       const stepTable = {
         binaryDigit,
@@ -222,7 +222,7 @@ export default function BinaryDecimal() {
       await waitStep(400, id);
 
       // Shows powers
-      for (let i = 0; i < numero.length; i++) {
+      for (let i = 0; i < number.length; i++) {
         await waitStep(50, id);
         setVisiblePowers(i + 1);
         await waitStep(1000, id);
@@ -361,7 +361,7 @@ export default function BinaryDecimal() {
                   ) : (
                     <p
                       className={`${
-                        i === calculationSteps.length - 1 && "text-blue"
+                        calculationSteps && i === calculationSteps.length - 1 && "text-blue"
                       }`}
                     >
                       {step.calculationStep!.value}
@@ -382,7 +382,7 @@ export default function BinaryDecimal() {
             >
               <Result
                 orientation="row"
-                initialValue={{ value: parseInt(numero), base: "2" }}
+                initialValue={{ value: parseInt(number), base: "2" }}
                 finalValue={{ value: decimal, base: "10" }}
               />
             </motion.div>

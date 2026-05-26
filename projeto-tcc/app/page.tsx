@@ -6,7 +6,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center">
-      <MainPageTitle title={"Lorem Ipsum"} subtitle={"Lorem ipsum dolor sit amet, consectetur adipiscing elit"} />
+      <MainPageTitle title={"Lorem Ipsum"} subtitle={"Explorando computação através de representações visuais"} />
 
       <div className="gap-x-10 gap-y-7 grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 2xl:gap-20 my-5 2xl:my-10">
         <FeatureCard

@@ -5,7 +5,7 @@ import SidePageTitle from "@/components/SidePageTitle";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import TextualExplanation from "@/components/TextualExplanation";
 import { explanations } from "@/utils/explanations";
 import {
@@ -22,56 +22,39 @@ import {
   imageSquares,
 } from "@/lib/models/image-compression";
 
-type VisualNode = {
-  node: Node;
-  x: number;
-  y: number;
-};
+type BlockGroupingStepType = "merge" | "reposition";
 
-type VisualNodePair = {
-  parentFrequency: number;
-  pair: VisualNode[];
-};
-
-type Layout = Record<number, VisualNodePair[]>; // Key represents current depth in tree
-
-type TreeStep = {
-  biggerNode: Node; // Bigger node that will be paired up
-  smallerNode: Node; // Smaller node that will be paired up
-  parentNode: Node;
+type BlockGroupingStep = {
+  type: BlockGroupingStepType;
+  smallerBlock: Block;
+  biggerBlock: Block;
+  newBlock?: Block; // When merging smaller blocks into new one
+  currentBlocks: Block[];
   index: number;
-  layout: Layout;
 };
 
 type TableStep = {
   block: Block;
-  renderTableBlock: boolean;
+  renderTablePixel: boolean;
   renderTableFrequency: boolean;
 };
 
 type Block = {
-  color: ColorIndex | number;
+  color: ColorIndex | number | null;
+  innerBlocks: Block[]; // Block made up of other blocks, caused by block grouping
   frequency: number;
   pixels: number[]; // Index of this block's pixels on the original image
   code: string;
+  id: string;
 };
 
-type Node = {
-  id: number;
-  frequency: number;
-  block: ColorIndex | number | undefined;
-  parent: Node | undefined;
-  children: Node[];
-  parentEdge: number; // Branch that links current node to parent node, either 0 or 1
-};
-
-const NULL_NODE = {
-  id: -1,
+const NULL_BLOCK = {
+  color: null,
+  innerBlocks: [],
   frequency: 0,
-  block: undefined,
-  parent: undefined,
-  children: [],
-  parentEdge: -1,
+  pixels: [],
+  code: "",
+  id: "",
 };
 
 export default function Huffman() {
@@ -79,20 +62,25 @@ export default function Huffman() {
   const [currentTableStep, setCurrentTableStep] = useState<TableStep>();
   const [highlightedPixels, setHighlightedPixels] = useState(0); // Image pixels that are being counted for the compression
   const [visibleRows, setVisibleRows] = useState(0); // Rows visible in table
-  const [visibleCodes, setVisibleCodes] = useState<string[]>([]); // Codes visible (only visible after path is highlighted)
+  const [highlightedRow, setHighlightedRow] = useState<ColorIndex | number>(); // Highlights row of the pixel that is being compressed into the bit array
+  const [visibleCodeDigits, setVisibleCodeDigits] = useState<
+    Record<ColorIndex | number, number>
+  >({});
 
-  // Tree
-  const [renderTree, setRenderTree] = useState(false);
-  const [currentTreeStep, setCurrentTreeStep] = useState<TreeStep>();
-  const [showEdgeValues, setShowEdgeValues] = useState(false); // Shows edge values after Huffman tree is done
-  const [generateTableCodes, setGenerateTableCodes] = useState(false); // Initiates code generating step
-  const [highlightedEdgePath, setHighlightedEdgePath] = useState(""); // Highlights path to the current node
+  // Block grouping
+  const [renderBlockGrouping, setRenderBlockGrouping] = useState(false);
+  const [currentBlockGroupingStep, setCurrentBlockGroupingStep] =
+    useState<BlockGroupingStep>();
+  const [highlightedBlocks, setHighlightedBlocks] = useState<Block[]>([]); // Highlights smallest blocks
+  const [showNotUsedRows, setShowNotUsedRows] = useState(false); // Shows "-" as the added code for that pixel in current step
+  const [merge, setMerge] = useState(false); // Merges smaller blocks into new one
+  const [message, setMessage] = useState(""); // Renders a short explanation below the table
 
   // Bit array
-  const [showCompressedArray, setShowCompressedArray] = useState(false); // Render bit array and show size calculation
+  const [showCompressedArray, setShowCompressedArray] = useState(0); // Render bit array and show size calculation
+  const [highlightedPixelBitArray, setHighlightedPixelBitArray] = useState(-1); // Image pixels that are being counted for the bit array
 
   // Result
-  const [visibleResult, setVisibleResult] = useState(-1); // ?
   const [showResult, setShowResult] = useState(false);
 
   // Buttons
@@ -131,9 +119,6 @@ export default function Huffman() {
     return black_white;
   };
 
-  const HORIZONTAL_SPACING = 210;
-  const VERTICAL_SPACING = 110;
-
   const insertSorted = <T,>(
     arr: T[],
     item: T,
@@ -144,117 +129,6 @@ export default function Huffman() {
     );
 
     arr.splice(index === -1 ? arr.length : index, 0, item);
-  };
-
-  const getNodeDepth = (node: Node): number => {
-    if (!node.parent) return 0;
-    return getNodeDepth(node.parent) + 1;
-  };
-
-  const positionLayout = (layout: Layout): Layout => {
-    const positionedLayout: Layout = {};
-
-    for (const [depthStr, row] of Object.entries(layout)) {
-      const depth = Number(depthStr);
-
-      const pairSpacing = 140; // Space between pairs
-      const nodeSpacing = 40; // Space between siblings
-
-      const totalWidth = (row.length - 1) * pairSpacing;
-      const startX = -totalWidth / 2;
-
-      positionedLayout[depth] = row.map((pairData, pairIndex) => {
-        const pairCenterX = startX + pairIndex * pairSpacing;
-
-        const positionedPair = pairData.pair.map((visualNode, nodeIndex) => {
-          const offset =
-            pairData.pair.length === 1
-              ? 0
-              : nodeIndex === 0
-              ? -nodeSpacing / 2
-              : nodeSpacing / 2;
-
-          return {
-            ...visualNode,
-            x: pairCenterX + offset,
-            y: depth * VERTICAL_SPACING,
-          };
-        });
-
-        return {
-          ...pairData,
-          pair: positionedPair,
-        };
-      });
-    }
-
-    return positionedLayout;
-  };
-
-  const createLayout = (
-    currentLayout: Layout,
-    activeNodes: Node[],
-    biggerNode: Node,
-    smallerNode: Node,
-    parentNode: Node
-  ) => {
-    const topRow: VisualNode[] = activeNodes.map((node) => ({
-      node,
-      x: 0,
-      y: 0,
-    }));
-
-    const childDepth = getNodeDepth(biggerNode);
-
-    const childNodes: VisualNode[] = [
-      {
-        node: biggerNode,
-        x: 0,
-        y: 0,
-      },
-      {
-        node: smallerNode,
-        x: 0,
-        y: 0,
-      },
-    ];
-
-    const newLayout: Layout = {
-      0: topRow.map((node) => {
-        return { parentFrequency: 0, pair: [node] };
-      }),
-    };
-
-    for (const key of Object.keys(currentLayout)) {
-      const rowDepth = Number(key);
-      const currentRow = currentLayout[rowDepth];
-
-      // Reorganizes tree into new depths
-      if (rowDepth !== 0) {
-        const depth = getNodeDepth(currentRow[0].pair[0].node); // New depth of the row
-
-        if (childDepth === depth) {
-          // Inserts new children in level of tree
-          newLayout[depth] = [...currentRow];
-          insertSorted(
-            newLayout[depth],
-            { parentFrequency: parentNode.frequency, pair: childNodes },
-            (item) => item.parentFrequency
-          );
-        } else {
-          newLayout[depth] = currentRow;
-        }
-      }
-    }
-
-    // If new level has to be created for the new children
-    if (!Object.keys(currentLayout).includes(childDepth.toString())) {
-      newLayout[childDepth] = [
-        { parentFrequency: parentNode.frequency, pair: childNodes },
-      ];
-    }
-
-    return positionLayout(newLayout);
   };
 
   const grid = useMemo(() => {
@@ -279,23 +153,21 @@ export default function Huffman() {
 
   const {
     table,
-    tree,
     tableSteps,
-    treeSteps,
-    originalNodeOrder,
+    blockGroupingSteps,
   }: {
     table: Block[];
-    tree: Node[];
     tableSteps: TableStep[];
-    treeSteps: TreeStep[];
-    originalNodeOrder: Node[];
+    blockGroupingSteps: BlockGroupingStep[];
   } = useMemo(() => {
     const table: Block[] = [];
-    let tree: Node[] = [];
-    const treeSteps: TreeStep[] = [];
+    const blockGroupingSteps: BlockGroupingStep[] = [];
 
     const blockTypes: (ColorIndex | number)[] = [...new Set(grid)];
+    let id = 1;
 
+    // TABLE
+    // Creates table rows
     for (const block of blockTypes) {
       let frequency = 0;
       const pixels = [];
@@ -306,145 +178,122 @@ export default function Huffman() {
         }
       }
 
-      table.push({ color: block, frequency, code: "", pixels });
+      table.push({
+        color: block,
+        frequency,
+        code: "",
+        pixels,
+        innerBlocks: [],
+        id: id.toString(),
+      });
+
+      id++;
     }
 
+    // Creates table steps
     const tableSteps: TableStep[] = table.map((row) => {
       return {
         block: row,
-        renderTableBlock: false,
+        renderTablePixel: false,
         renderTableFrequency: false,
       };
     });
 
-    function createNodes(blocks: Block[]): Node[] {
-      return blocks.map((block, index) => ({
-        id: index,
-        frequency: block.frequency,
-        block: block.color,
-        parent: undefined,
-        children: [],
-        parentEdge: -1,
-      }));
-    }
+    // BLOCKS
+    let blocks = [...table];
 
-    const originalOrder = [...table];
-    const originalNodeOrder = createNodes(originalOrder);
-
-    // Sorts by frequency, biggest to smallest
-    table.sort((a, b) => b.frequency - a.frequency);
-
-    const nodes = createNodes(table);
-
-    let nodeIndex = nodes.length;
-    let stepIndex = 0;
-
-    // Nodes that need to be paired up
-    const activeNodes = [...nodes];
-
-    let currentLayout: Layout = {
-      0: activeNodes.map((node) => ({
-        parentFrequency: 0,
-        pair: [
-          {
-            node,
-            x: 0,
-            y: 0,
-          },
-        ],
-      })),
-    };
-
-    currentLayout = positionLayout(currentLayout);
-
-    // Creates Huffman tree
-    while (activeNodes.length > 1) {
-      const smallerNode = activeNodes.at(-1)!;
-      const biggerNode = activeNodes.at(-2)!;
-
-      const parentNode: Node = {
-        id: nodeIndex,
-        frequency: smallerNode.frequency + biggerNode.frequency,
-        block: undefined,
-        parent: undefined,
-        children: [biggerNode, smallerNode],
-        parentEdge: -1,
-      };
-
-      biggerNode.parent = parentNode;
-      biggerNode.parentEdge = 0;
-
-      smallerNode.parent = parentNode;
-      smallerNode.parentEdge = 1;
-
-      treeSteps.push({
-        biggerNode,
-        smallerNode,
-        parentNode,
-        index: stepIndex,
-        layout: structuredClone(currentLayout),
-      });
-
-      // Remove paired nodes
-      const filteredNodes = activeNodes.filter(
-        (node) => node !== smallerNode && node !== biggerNode
-      );
-
-      // Define new top layer
-      insertSorted(filteredNodes, parentNode, (item) => item.frequency);
-
-      activeNodes.length = 0;
-      activeNodes.push(...filteredNodes);
-
-      currentLayout = createLayout(
-        currentLayout,
-        activeNodes,
-        biggerNode,
-        smallerNode,
-        parentNode
-      );
-
-      nodes.push(parentNode);
-
-      nodeIndex++;
-      stepIndex++;
-    }
-
-    treeSteps.push({
-      biggerNode: NULL_NODE,
-      smallerNode: NULL_NODE,
-      parentNode: NULL_NODE,
-      index: stepIndex,
-      layout: structuredClone(currentLayout),
+    blockGroupingSteps.push({
+      type: "reposition",
+      smallerBlock: blocks.at(-1)!,
+      biggerBlock: blocks.at(-2)!,
+      currentBlocks: blocks,
+      index: -1, // This step will only render blocks in original order, won't group blocks
     });
 
-    tree = nodes;
+    // Sorts by frequency, biggest to smallest
+    blocks.sort((a, b) => b.frequency - a.frequency);
+    let index = 0;
 
-    // Creates block codes
-    const createBlockCodes = (currentPath: string, currentNode: Node) => {
-      // Not leaf
-      if (currentNode.children.length > 0) {
-        // Left (0)
-        createBlockCodes(`${currentPath}${0}`, currentNode.children[0]);
-
-        // Right (1)
-        createBlockCodes(`${currentPath}${1}`, currentNode.children[1]);
+    function updateBlockCode(bit: string, block: Block) {
+      if (block.innerBlocks.length > 0) {
+        // Updates code of all blocks that make up this one
+        for (const innerBlock of block.innerBlocks) {
+          innerBlock.code = bit + innerBlock.code;
+        }
       } else {
-        // Leaf (image pixels)
-        const block = table.find((item) => item.color === currentNode.block);
-        block!.code = currentPath;
-        return;
+        // Only updates block's code
+        block.code = bit + block.code;
       }
+    }
 
-      return;
-    };
+    // Creates block grouping step
+    while (blocks.length >= 2) {
+      const smallerBlock = blocks.at(-1)!;
+      const biggerBlock = blocks.at(-2)!;
 
-    const currentNode = nodes.at(-1); // Root
-    const currentPath = "";
+      // Smaller block on pair receives 0
+      updateBlockCode("0", smallerBlock);
 
-    createBlockCodes(currentPath, currentNode!);
+      // Bigger block on pair receives 1
+      updateBlockCode("1", biggerBlock);
 
-    return { table, tree, tableSteps, treeSteps, originalNodeOrder };
+      const newBlock: Block = {
+        frequency: smallerBlock.frequency + biggerBlock.frequency,
+        innerBlocks: [
+          ...(smallerBlock.innerBlocks.length > 0
+            ? smallerBlock.innerBlocks
+            : [smallerBlock]),
+          ...(biggerBlock.innerBlocks.length > 0
+            ? biggerBlock.innerBlocks
+            : [biggerBlock]),
+        ],
+        color: null,
+        code: "",
+        pixels: [],
+        id: smallerBlock.id + biggerBlock.id,
+      };
+
+      blockGroupingSteps.push({
+        type: "merge",
+        smallerBlock,
+        biggerBlock,
+        currentBlocks: blocks,
+        newBlock,
+        index,
+      });
+
+      // Removes grouped blocks
+      blocks = blocks.filter(
+        (block) =>
+          block.color !== smallerBlock.color &&
+          block.color !== biggerBlock.color
+      );
+
+      // Renders after smaller blocks are highlighted, to show what they become next
+      blockGroupingSteps.push({
+        type: "reposition",
+        smallerBlock,
+        biggerBlock,
+        newBlock,
+        currentBlocks: [...blocks, newBlock],
+        index,
+      });
+
+      // Puts new block in correct position
+      insertSorted(blocks, newBlock, (item) => item.frequency);
+
+      index++;
+    }
+
+    blockGroupingSteps.push({
+      type: "merge",
+      smallerBlock: NULL_BLOCK,
+      biggerBlock: NULL_BLOCK,
+      currentBlocks: blocks,
+      index, // This step will only render blocks in original order, won't group blocks
+    });
+
+    return { table, tableSteps, blockGroupingSteps };
   }, [grid]);
 
   const compressed_size = useMemo(() => {
@@ -467,8 +316,7 @@ export default function Huffman() {
   };
 
   const reset = () => {
-    setCurrentTreeStep(undefined);
-    setVisibleResult(-1);
+    setCurrentBlockGroupingStep(undefined);
     setHighlightedPixels(0);
     setIsPaused(false);
     setShowResult(false);
@@ -510,73 +358,179 @@ export default function Huffman() {
     pauseRef.current = isPaused;
   }, [isPaused]);
 
+  useEffect(() => {
+    if (table) {
+      setVisibleCodeDigits(
+        Object.fromEntries(table.map((row) => [row.color, 0]))
+      );
+    }
+  }, [table]);
+
+  const shouldReorder = (
+    prevState: BlockGroupingStep,
+    nextState: BlockGroupingStep
+  ) => {
+    return (
+      prevState.currentBlocks.at(-1) !== nextState.currentBlocks.at(-1) &&
+      prevState.type === "reposition"
+    );
+  };
+
   async function runAnimation() {
     // Avoid overlap of different renders if animation is restarted before finishing
     const id = ++animationIdRef.current;
 
     try {
       setIsRunning(true);
+      const localVisibleCodeDigits = { ...visibleCodeDigits };
 
       // Scan image to create table
-      // for (let i = 0; i < tableSteps.length; i++) {
-      //   setCurrentTableStep(tableSteps[i]);
-      //   await waitStep(50, id);
+      for (let i = 0; i < tableSteps.length; i++) {
+        setCurrentTableStep(tableSteps[i]);
+        await waitStep(50, id);
 
-      //   for (let j = 0; j < table[i].frequency; j++) {
-      //     await waitStep(200, id);
-      //     setHighlightedPixels(j);
-      //   }
+        for (let j = 0; j < table[i].frequency; j++) {
+          await waitStep(200, id);
+          setHighlightedPixels(j);
+        }
 
-      //   await waitStep(400, id);
-      //   // Shows table row
-      //   setVisibleRows(i + 1);
+        await waitStep(400, id);
+        // Shows table row
+        setVisibleRows(i + 1);
 
-      //   // Shows block
-      //   await waitStep(300, id);
-      //   setCurrentTableStep((prev) => ({ ...prev!, renderTableBlock: true }));
+        // Shows block
+        await waitStep(300, id);
+        setCurrentTableStep((prev) => ({ ...prev!, renderTableBlock: true }));
 
-      //   // Shows frequency
-      //   await waitStep(500, id);
-      //   setCurrentTableStep((prev) => ({
-      //     ...prev!,
-      //     renderTableFrequency: true,
-      //   }));
+        // Shows frequency
+        await waitStep(500, id);
+        setCurrentTableStep((prev) => ({
+          ...prev!,
+          renderTableFrequency: true,
+        }));
 
-      //   await waitStep(300, id);
-      //   setHighlightedPixels(-1);
-      // }
+        await waitStep(300, id);
+        setHighlightedPixels(-1);
+      }
 
       setHighlightedPixels(-1);
-      setRenderTree(true);
-      setCurrentTreeStep({
-        biggerNode: treeSteps[0].biggerNode,
-        smallerNode: treeSteps[0].smallerNode,
-        parentNode: treeSteps[0].parentNode,
-        index: -1,
-        layout: positionLayout({
-          0: originalNodeOrder.map((node) => ({
-            parentFrequency: 0,
-            pair: [
-              {
-                node,
-                x: 0,
-                y: 0,
-              },
-            ],
-          })),
-        }),
-      });
+      setRenderBlockGrouping(true);
 
-      for (let i = 0; i < treeSteps.length; i++) {
-        // Creates Huffman tree
-        setCurrentTreeStep(treeSteps[i]);
-        await waitStep(3600, id);
+      let initialStep = 1;
 
-        // Reorder nodes
+      // Verifies if it is necessary to reorder blocks or if table order is already sorted
+      for (let i = 0; i < blockGroupingSteps[0].currentBlocks.length; i++) {
+        if (
+          blockGroupingSteps[0].currentBlocks[i].id !==
+          blockGroupingSteps[1].currentBlocks[i].id
+        ) {
+          initialStep = 0;
+          break;
+        }
+      }
 
-        // Highlight smallest nodes
+      let currentStep = blockGroupingSteps[initialStep];
 
-        // Link nodes in new node, create new frequency
+      for (let i = initialStep; i < blockGroupingSteps.length; i++) {
+        await waitStep(50, id);
+        setMerge(false);
+
+        // Checks if reordering will be needed
+        if (shouldReorder(currentStep, blockGroupingSteps[i]))
+          setMessage("Reordena de forma descrescente");
+
+        currentStep = blockGroupingSteps[i];
+
+        setCurrentBlockGroupingStep(currentStep);
+
+        // Skips if it's last step
+        if (currentStep.currentBlocks.length === 1) {
+          break;
+        }
+
+        await waitStep(1300, id);
+
+        setMessage("");
+
+        if (currentStep.index > -1) {
+          // Show blocks that will be paired up
+          if (currentStep.type === "merge") {
+            if (currentStep.currentBlocks.length > 1)
+              setMessage("Agrupa os dois blocos menos frequentes");
+
+            // Highlight smallest blocks
+            setHighlightedBlocks([currentStep.smallerBlock]);
+
+            await waitStep(1000, id);
+
+            setHighlightedBlocks([
+              currentStep.smallerBlock,
+              currentStep.biggerBlock,
+            ]);
+            await waitStep(1000, id);
+
+            setShowNotUsedRows(true);
+
+            await waitStep(700, id);
+
+            // Shows new bits in blocks' codes
+
+            for (const block of [
+              currentStep.smallerBlock,
+              currentStep.biggerBlock,
+            ]) {
+              if (block.innerBlocks.length > 0) {
+                for (const innerBlock of block.innerBlocks) {
+                  localVisibleCodeDigits[innerBlock.color!]++;
+                }
+              } else {
+                localVisibleCodeDigits[block.color!]++;
+              }
+            }
+
+            setVisibleCodeDigits(localVisibleCodeDigits);
+
+            await waitStep(1200, id);
+
+            setMessage("");
+
+            setHighlightedBlocks([]);
+
+            setShowNotUsedRows(false);
+
+            setMerge(true);
+
+            await waitStep(1000, id);
+          } else {
+            // Shows new block after merging smaller blocks
+            if (shouldReorder(currentStep, blockGroupingSteps[i + 1])) {
+              await waitStep(1000, id);
+            }
+          }
+        }
+      }
+
+      await waitStep(800, id);
+
+      setMerge(false);
+
+      setRenderBlockGrouping(false);
+
+      await waitStep(1000, id);
+
+      // Scan image to create bit array
+      for (let i = 0; i < grid.length; i++) {
+        // Highlights pixel
+        setHighlightedPixelBitArray(i);
+        await waitStep(200, id);
+
+        // Highlights table row
+        setHighlightedRow(grid[i]);
+        await waitStep(200, id);
+
+        // Renders pixel code
+        setShowCompressedArray(i + 1);
+        await waitStep(200, id);
       }
 
       setIsRunning(false);
@@ -591,7 +545,7 @@ export default function Huffman() {
   const delay = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
-  console.log(treeSteps);
+
   return (
     <div className="flex flex-col w-full h-[calc(100vh-100px)]">
       <div className="flex flex-col">
@@ -605,7 +559,8 @@ export default function Huffman() {
           {/* Image */}
           <div className="flex flex-col items-center gap-1 font-title justify-center  w-1/3">
             <div className="text-base font-semibold">
-              Original: {size} x {size} → {size * size} bytes{" "}
+              Original: {size} x {size} → {size * size} bytes →{" "}
+              {size * size * 8} bits
             </div>
 
             <table className="border-collapse 2xl:text-base">
@@ -635,10 +590,11 @@ export default function Huffman() {
                       const [r, g, b] = getRGB(currPixel);
 
                       const highlight =
-                        currentTableStep &&
-                        currentTableStep?.block.color === currPixel &&
-                        index !== undefined &&
-                        index <= highlightedPixels;
+                        ((currentTableStep &&
+                          currentTableStep?.block.color === currPixel &&
+                          index !== undefined &&
+                          index <= highlightedPixels) ||
+                        pos === highlightedPixelBitArray) && isRunning;
 
                       return (
                         <td
@@ -665,142 +621,404 @@ export default function Huffman() {
           </div>
 
           {/* Huffman table */}
-          <div className="border-1 border-black rounded-md h-fit">
-            <table className=" text-base 2xl:text-lg font-common">
-              {/* Headers */}
-              <thead>
-                <tr className="font-title">
-                  <td
-                    key={`header-block`}
-                    className={`p-3 border-black border-1 text-blue text-center`}
-                  >
-                    Pixel
-                  </td>
-                  <td
-                    key={`header-frequency`}
-                    className={`p-3 border-black border-1 text-blue text-center`}
-                  >
-                    Frequência
-                  </td>
-                  <td
-                    key={`header-code`}
-                    className={`p-3 border-black border-1 text-blue text-center`}
-                  >
-                    Código
-                  </td>
-                </tr>
-              </thead>
-
-              <tbody>
-                {/* Rows */}
-                {table.map((row, i) => {
-                  const [r, g, b] = getRGB(row.color);
-
-                  const renderBlock =
-                    visibleRows > i ||
-                    (currentTableStep &&
-                      currentTableStep.block === row &&
-                      currentTableStep.renderTableBlock);
-
-                  const renderFrequency =
-                    visibleRows > i ||
-                    (currentTableStep &&
-                      currentTableStep.block === row &&
-                      currentTableStep.renderTableFrequency);
-
-                  return (
-                    <tr
-                      key={`huffman-table-row-${i}`}
-                      className="justify-center"
+          <div className="flex flex-col mr-10">
+            <p className="text-blue text-lg font-semibold mb-2 font-title text-center">
+              Tabela de Huffman
+            </p>
+            <div className="border-1 border-black rounded-md h-fit">
+              <table className=" text-base 2xl:text-lg font-common ">
+                {/* Headers */}
+                <thead>
+                  <tr className="font-title border-b-2">
+                    <td
+                      key={`header-block`}
+                      className={`p-3 border-black border-1 text-blue text-center`}
                     >
-                      <td
-                        key={`cell-block-${i}`}
-                        className={`border-black border-1 text-blue  ${
-                          renderBlock ? "opacity-100" : "opacity-0"
-                        }`}
-                      >
-                        <div
-                          style={{ backgroundColor: `rgb(${r}, ${g}, ${b})` }}
-                          className={`size-4 mx-auto`}
-                        />
-                      </td>
-                      <td
-                        key={`cell-frequency-${i}`}
-                        className={`p-3 border-black border-1 text-blue text-center ${
-                          renderFrequency ? "opacity-100" : "opacity-0"
-                        }`}
-                      >
-                        {row.frequency}
-                      </td>
-                      <td
-                        key={`cell-code-${i}`}
-                        className={`p-3 border-black border-1 text-blue text-center ${
-                          visibleCodes.includes(row.code)
-                            ? "opacity-100"
-                            : "opacity-0"
-                        }`}
-                      >
-                        {row.code}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      Pixel
+                    </td>
+                    <td
+                      key={`header-frequency`}
+                      className={`p-3 border-black border-1 text-blue text-center`}
+                    >
+                      Frequência
+                    </td>
+                    <td
+                      key={`header-code`}
+                      className={`p-3 border-black border-1 text-blue text-center`}
+                    >
+                      Código
+                    </td>
+                  </tr>
+                </thead>
 
-          {/* Tree */}
-          <div className="relative w-2/3  border rounded-xl overflow-hidden">
-            <div className="absolute left-1/2 top-8">
-              {renderTree &&
-                currentTreeStep &&
-                Object.values(currentTreeStep.layout).map((row, rowIndex) =>
-                  row.map((pairData, pairIndex) =>
-                    pairData.pair.map(({ node, x, y }, nodeIndex) => {
-                      const [r, g, b] =
-                        node.block !== undefined
-                          ? getRGB(node.block)
-                          : [undefined, undefined, undefined];
+                <tbody>
+                  {/* Rows */}
+                  {table.map((row, i) => {
+                    const [r, g, b] = getRGB(row.color!);
 
-                      return (
-                        <motion.div
-                          key={`${node.id}-${rowIndex}-${pairIndex}-${nodeIndex}`}
-                          animate={{ x, y }}
-                          transition={{ duration: 0.6 }}
-                          className="absolute"
+                    const renderBlock =
+                      visibleRows > i ||
+                      (currentTableStep &&
+                        currentTableStep.block === row &&
+                        currentTableStep.renderTablePixel);
+
+                    const renderFrequency =
+                      visibleRows > i ||
+                      (currentTableStep &&
+                        currentTableStep.block === row &&
+                        currentTableStep.renderTableFrequency);
+
+                    return (
+                      <tr
+                        key={`huffman-table-row-${i}`}
+                        className={`justify-center transition-colors ease-in-out duration-300 ${
+                          highlightedRow === row.color && "bg-blue/25"
+                        }`}
+                      >
+                        <td
+                          key={`cell-block-${i}`}
+                          className={`border-black border text-blue  `}
                         >
-                          <div
-                            className={`
-                    size-14 rounded-full border-2 flex items-center justify-center
-                    font-semibold bg-white
-                    ${
-                      node === currentTreeStep.biggerNode ||
-                      node === currentTreeStep.smallerNode
-                        ? "border-blue"
-                        : "border-black"
-                    }
-                  `}
+                          <motion.div
+                            initial={{ opacity: 0, y: 3 }}
+                            animate={
+                              renderBlock
+                                ? { opacity: 1, y: 0 }
+                                : { opacity: 0, y: 3 }
+                            }
+                            style={{ backgroundColor: `rgb(${r}, ${g}, ${b})` }}
+                            className={`size-4 mx-auto`}
+                          />
+                        </td>
+                        <td
+                          key={`cell-frequency-${i}`}
+                          className={`p-3 border-black border text-blue text-center `}
+                        >
+                          <motion.div
+                            initial={{ opacity: 0, y: 3 }}
+                            animate={
+                              renderFrequency
+                                ? { opacity: 1, y: 0 }
+                                : { opacity: 0, y: 3 }
+                            }
                           >
-                            <div className="flex flex-row items-center gap-1">
-                              {node.frequency}
+                            {row.frequency}
+                          </motion.div>
+                        </td>
+                        <td
+                          key={`cell-code-${i}`}
+                          className={`p-3 border-black border text-blue text-center `}
+                        >
+                          <motion.div className="flex gap-[2px] justify-center">
+                            {row.code.split("").map((char, charIndex) => {
+                              const renderDigit =
+                                visibleCodeDigits &&
+                                row.color! in visibleCodeDigits &&
+                                visibleCodeDigits[row.color!] >=
+                                  row.code.length - charIndex;
 
-                              {node.block !== undefined && (
-                                <div
-                                  style={{
-                                    backgroundColor: `rgb(${r}, ${g}, ${b})`,
-                                  }}
-                                  className="size-4 rounded-xs"
-                                />
-                              )}
-                            </div>
-                          </div>
-                        </motion.div>
-                      );
-                    })
-                  )
-                )}
+                              return (
+                                <motion.div
+                                  key={`char-${char}-${charIndex}`}
+                                  initial={{ opacity: 0, y: 3 }}
+                                  animate={
+                                    renderDigit
+                                      ? { opacity: 1, y: 0 }
+                                      : { opacity: 0, y: 3 }
+                                  }
+                                >
+                                  {char}
+                                </motion.div>
+                              );
+                            })}
+                          </motion.div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
+
+          {/* Block grouping table */}
+          <AnimatePresence>
+            {renderBlockGrouping && (
+              <motion.div
+                initial={{ opacity: 0, y: 3 }}
+                animate={
+                  renderBlockGrouping
+                    ? { opacity: 1, y: 0 }
+                    : { opacity: 0, y: 3 }
+                }
+                exit={{ opacity: 0, y: 3 }}
+                transition={{ duration: 0.6 }}
+                className="font-title overflow-hidden"
+              >
+                <p className="text-blue text-lg font-semibold mb-2 text-center">
+                  Agrupamento de pixels
+                </p>
+
+                <div className=" overflow-hidden">
+                  {/* Header */}
+                  <div className="grid grid-cols-[200px_200px] border border-b-2 bg-white rounded-t-md">
+                    {["Bloco", "Código a receber"].map((header, i) => (
+                      <div
+                        key={`${header}-${i}`}
+                        className="py-2 border-r last:border-r-0 border-black text-blue text-center font-medium text-base"
+                      >
+                        {header}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Rows */}
+                  <motion.div layout className="flex flex-col">
+                    <AnimatePresence mode="popLayout">
+                      {currentBlockGroupingStep &&
+                        currentBlockGroupingStep.currentBlocks.map((block) => {
+                          const [r, g, b] =
+                            block.innerBlocks.length > 0
+                              ? [0, 0, 0]
+                              : getRGB(block.color!);
+
+                          const isSmaller =
+                            block.id ===
+                            currentBlockGroupingStep.smallerBlock.id;
+
+                          const isBigger =
+                            block.id ===
+                            currentBlockGroupingStep.biggerBlock.id;
+
+                          const isMergingOut =
+                            currentBlockGroupingStep.type === "merge" &&
+                            merge &&
+                            (isSmaller || isBigger);
+
+                          const roundedBorder =
+                            isSmaller ||
+                            currentBlockGroupingStep.newBlock?.id ===
+                              block.id ||
+                            currentBlockGroupingStep.currentBlocks.length === 1;
+
+                          const hideBorders = isSmaller && isMergingOut;
+
+                          return (
+                            <motion.div
+                              key={block.id}
+                              layout
+                              initial={false}
+                              animate={{
+                                y: isMergingOut && isSmaller ? -64 : 0,
+                                opacity: isMergingOut ? 0 : 1,
+                              }}
+                              exit={{
+                                opacity: 0,
+                              }}
+                              transition={{
+                                layout: {
+                                  duration: isBigger ? 0.1 : 0.8,
+                                  ease: "easeInOut",
+                                },
+                                delay: isMergingOut && isBigger ? 0.7 : 0,
+                                duration: 0.8,
+                              }}
+                              className={` grid grid-cols-[200px_200px] border border-b border-black transition-colors duration-300 ${
+                                highlightedBlocks.includes(block)
+                                  ? "bg-blue/25"
+                                  : "bg-white"
+                              } ${!(isBigger && isMergingOut) && "z-20"} ${
+                                roundedBorder && "rounded-b-md"
+                              } ${hideBorders && "border-0"} `}
+                            >
+                              {/* BLOCK */}
+                              <div className="p-3 border-r border-black flex justify-center items-center">
+                                <motion.div
+                                  layout
+                                  initial={{ opacity: 0, y: 5 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{
+                                    duration: 0.4,
+                                    ease: "easeInOut",
+                                  }}
+                                  className={`flex flex-row items-center justify-center border w-fit rounded-sm py-[2px] px-[2px] `}
+                                >
+                                  <div className="text-base mx-1">
+                                    {block.frequency}
+                                  </div>
+
+                                  {block.innerBlocks.length > 0 ? (
+                                    block.innerBlocks.map(
+                                      (innerBlock, innerIndex) => {
+                                        const [r, g, b] = getRGB(
+                                          innerBlock.color!
+                                        );
+
+                                        return (
+                                          <div
+                                            key={`innerBlock-${innerIndex}`}
+                                            style={{
+                                              backgroundColor: `rgb(${r}, ${g}, ${b})`,
+                                            }}
+                                            className="size-4 mx-1"
+                                          />
+                                        );
+                                      }
+                                    )
+                                  ) : (
+                                    <div
+                                      style={{
+                                        backgroundColor: `rgb(${r}, ${g}, ${b})`,
+                                      }}
+                                      className="size-4 mx-1"
+                                    />
+                                  )}
+                                </motion.div>
+                              </div>
+
+                              {/* CODE */}
+                              <div className="p-3 flex justify-center items-center">
+                                <motion.div
+                                  initial={{ opacity: 0, y: 3 }}
+                                  animate={
+                                    highlightedBlocks.includes(block) ||
+                                    showNotUsedRows
+                                      ? { opacity: 1, y: 0 }
+                                      : { opacity: 0, y: 3 }
+                                  }
+                                  transition={{
+                                    duration: 0.4,
+                                    ease: "easeOut",
+                                  }}
+                                  className="text-base"
+                                >
+                                  {currentBlockGroupingStep.smallerBlock.id ===
+                                  block.id
+                                    ? "+0"
+                                    : currentBlockGroupingStep.biggerBlock
+                                        .id === block.id
+                                    ? "+1"
+                                    : "-"}
+                                </motion.div>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                    </AnimatePresence>
+                  </motion.div>
+                </div>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={
+                    message.length > 0
+                      ? { opacity: 1, y: 0 }
+                      : { opacity: 0, y: 3 }
+                  }
+                >
+                  <p className="text-blue text-base font-semibold mt-2 text-center">
+                    {message}
+                  </p>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Bit array and result */}
+          <AnimatePresence>
+            {showCompressedArray > 0 && (
+              <motion.div
+              initial={{ opacity: 0, y: 0 }}
+              animate={
+                showCompressedArray > 0
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0, y: 0}
+              }
+              exit={{ opacity: 0, y: 0 }}
+                className="flex flex-col font-title gap-6"
+              >
+                {/* Bit array */}
+                <motion.div
+                  initial={{ opacity: 0, y: 3 }}
+                  animate={
+                    showCompressedArray
+                      ? { opacity: 1, y: 0 }
+                      : { opacity: 0, y: 3 }
+                  }
+                  className="flex flex-col gap-1 w-full"
+                >
+                  <p className="text-lg font-title text-blue">
+                    <strong>Bit Array</strong> (representação de cada pixel com
+                    seu código)
+                  </p>
+
+                  <table className="border-collapse 2xl:text-base">
+                    <tbody>
+                      {[...Array(size)].map((_, i) => (
+                        <tr key={`bitmap-row-${i}`}>
+                          {[...Array(size)].map((_, j) => {
+                            const pos = i * size + j;
+                            const currPixel: number | ColorIndex = grid[pos];
+
+                            const row = table.find(
+                              (item) => item.color === currPixel
+                            );
+
+                            const [r, g, b] = getRGB(currPixel);
+
+                            return (
+                              <td
+                                key={`bitarray-cell-${j}`}
+                                className={`text-center transition-all ease-in-out duration-100 border-1 border-black h-7 `}
+                                style={{
+                                  color: `rgb(${r}, ${g}, ${b})`,
+                                }}
+                              >
+                                <motion.div
+                                  initial={{ opacity: 0, y: 0 }}
+                                  animate={
+                                    showCompressedArray >= pos + 1
+                                      ? { opacity: 1, y: 0 }
+                                      : { opacity: 0, y: 0 }
+                                  }
+                                >
+                                  {row!.code}
+                                </motion.div>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </motion.div>
+
+                {/* Result */}
+                {showResult && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3, duration: 0.3 }}
+                    className="flex flex-col gap-2"
+                  >
+                    <div className="flex flex-row gap-3 text-black text-2xl mx-auto font-title font-bold items-center ">
+                      <p>{size * size * 8} bits → </p>
+                      <div className="border border-blue rounded-md py-1 px-3 text-blue">
+                        {compressed_size} bits
+                      </div>
+                    </div>
+                    <p className="text-lg font-title text-center text-blue">
+                      {" "}
+                      Redução de{" "}
+                      {100 -
+                        Math.round((compressed_size * 100) / (size * size * 8))}
+                      %
+                    </p>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Buttons */}
@@ -816,9 +1034,12 @@ export default function Huffman() {
             </>
           ) : (
             <>
-              {/* TODO */}
               <Button
-                text={!currentTreeStep ? "Iniciar" : "Repetir"}
+                text={
+                  !currentTableStep && !currentBlockGroupingStep
+                    ? "Iniciar"
+                    : "Repetir"
+                }
                 onClick={reset}
               />
               <Button

@@ -165,8 +165,8 @@ export default function Subtraction() {
   const animationIdRef = useRef(0);
 
   const searchParams = useSearchParams();
-  const value1 = searchParams.get("valor1") || "";
-  const value2 = searchParams.get("valor2") || "";
+  const value1 = searchParams.get("value1") || "";
+  const value2 = searchParams.get("value2") || "";
 
   const formatNumbers = () => {
     const size = Math.max(value1.length, value2.length) + 1; // Adds 1 bit for overflow

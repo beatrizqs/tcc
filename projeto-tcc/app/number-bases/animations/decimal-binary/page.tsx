@@ -166,23 +166,25 @@ export default function DecimalBinario() {
         {/* Operations */}
         <div className="border-1 border-black rounded-md">
           <table className=" text-xl 2xl:text-2xl w-full">
-            <tbody>
-              {/* Headers */}
+            {/* Headers */}
+            <thead>
               <tr>
                 {["Divisão", "Resto"].map((header, i) => {
                   return (
                     <td
                       key={`${header}-${i}`}
                       className={`p-3 border-black border-1 text-blue text-center font-semibold w-[300px]
-                        `}
+                      `}
                     >
                       {header}
                     </td>
                   );
                 })}
               </tr>
+            </thead>
 
-              {/* Calculation and remainder */}
+            {/* Calculation and remainder */}
+            <tbody>
               <tr>
                 {/* Division */}
                 <td className="p-3 border-black border-1 border-t-2 text-black text-center">
