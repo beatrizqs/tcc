@@ -10,6 +10,7 @@ import TextualExplanation from "@/components/TextualExplanation";
 import { explanations } from "@/utils/explanations";
 import {
   ColorIndex,
+  getRGB,
   IMG_DESIGN,
   IMG_REPRESENTATION,
   IMG_REPRESENTATION_LABELS,
@@ -117,15 +118,6 @@ export default function Huffman() {
     }
 
     return black_white;
-  };
-
-  const getRGB = (color: ColorIndex | number) => {
-    const [r, g, b] =
-      representation === IMG_REPRESENTATION.COLORS
-        ? PALETTE[color as ColorIndex]
-        : [color, color, color];
-
-    return [r, g, b];
   };
 
   const shouldReorder = (
@@ -315,19 +307,19 @@ export default function Huffman() {
     return { table, tableSteps, blockGroupingSteps };
   }, [grid]);
 
-  const {compressed_size, table_size} = useMemo(() => {
-    const compressed_size = table.reduce((acc, block) => {
+  const { compressedSize, tableSize } = useMemo(() => {
+    const compressedSize = table.reduce((acc, block) => {
       return block.code.length * block.frequency + acc;
       // New size is calculated by how many bits are needed to represent the image
       // Recreating the original bitmap, we swap the block for the new code, where each number is a bit
     }, 0);
 
-    const table_size = table.reduce((acc, block) => {
+    const tableSize = table.reduce((acc, block) => {
       return block.code.length + 8 + acc;
       // Table size is calculated by how many bits are needed to represent each block + its code
     }, 0);
 
-    return {compressed_size, table_size};
+    return { compressedSize, tableSize };
   }, [table]);
 
   const reset = () => {
@@ -626,7 +618,7 @@ export default function Huffman() {
                         (item) => item === pos
                       ); // Index of the current pixel on the array of pixels of this color
 
-                      const [r, g, b] = getRGB(currPixel);
+                      const [r, g, b] = getRGB(currPixel, representation);
 
                       const highlight =
                         ((currentTableStep &&
@@ -694,7 +686,7 @@ export default function Huffman() {
                 <tbody>
                   {/* Rows */}
                   {table.map((row, i) => {
-                    const [r, g, b] = getRGB(row.color!);
+                    const [r, g, b] = getRGB(row.color!, representation);
 
                     const renderBlock =
                       visibleRows > i ||
@@ -792,7 +784,7 @@ export default function Huffman() {
                     : { opacity: 0, y: 3 }
                 }
                 exit={{ opacity: 0, y: 3 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 1 }}
                 className="font-title overflow-hidden"
               >
                 <p className="text-blue text-lg font-semibold mb-2 text-center">
@@ -820,7 +812,7 @@ export default function Huffman() {
                           const [r, g, b] =
                             block.innerBlocks.length > 0
                               ? [0, 0, 0]
-                              : getRGB(block.color!);
+                              : getRGB(block.color!, representation);
 
                           const isSmaller =
                             block.id ===
@@ -891,7 +883,8 @@ export default function Huffman() {
                                     block.innerBlocks.map(
                                       (innerBlock, innerIndex) => {
                                         const [r, g, b] = getRGB(
-                                          innerBlock.color!
+                                          innerBlock.color!,
+                                          representation
                                         );
 
                                         return (
@@ -1004,7 +997,7 @@ export default function Huffman() {
                               (item) => item.color === currPixel
                             );
 
-                            const [r, g, b] = getRGB(currPixel);
+                            const [r, g, b] = getRGB(currPixel, representation);
 
                             let textColor;
 
@@ -1064,16 +1057,21 @@ export default function Huffman() {
                   >
                     <div className="flex flex-row gap-3 text-black text-2xl mx-auto font-title font-bold items-center ">
                       <p>{size * size * 8} bits → </p>
-                      <p>{compressed_size} + {table_size} (tabela) → </p>
+                      <p>
+                        {compressedSize} + {tableSize} (tabela) →{" "}
+                      </p>
                       <div className="border border-blue rounded-md py-1 px-3 text-blue">
-                        {compressed_size + table_size} bits
+                        {compressedSize + tableSize} bits
                       </div>
                     </div>
                     <p className="text-lg font-title text-center text-blue">
                       {" "}
                       Redução de{" "}
                       {100 -
-                        Math.round(((compressed_size + table_size) * 100) / (size * size * 8))}
+                        Math.round(
+                          ((compressedSize + tableSize) * 100) /
+                            (size * size * 8)
+                        )}
                       %
                     </p>
                   </motion.div>

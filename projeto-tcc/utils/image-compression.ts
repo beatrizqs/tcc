@@ -9,6 +9,15 @@ export const PALETTE = [
 
 export type ColorIndex = (typeof COLORS)[keyof typeof COLORS];
 
+export const getRGB = (color: ColorIndex | number, representation: string) => {
+  const [r, g, b] =
+    representation === IMG_REPRESENTATION.COLORS
+      ? PALETTE[color as ColorIndex]
+      : [color, color, color];
+
+  return [r, g, b];
+};
+
 export const COLORS = {
   SKY: 0,
   GREEN: 1,

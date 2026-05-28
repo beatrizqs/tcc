@@ -1,32 +1,32 @@
 export const explanations = {
   cryptography: {
     vigenere: `A Cifra de Vigenère é um método de criptografia que utiliza múltiplos deslocamentos no alfabeto, tornando-a mais segura do que cifras simples, como a de César. Seu funcionamento baseia-se em duas informações principais: a mensagem original (texto claro) e uma chave secreta.\n
-Para iniciar o processo, a chave é repetida ou ajustada até possuir o mesmo comprimento da mensagem. Assim, cada caractere da mensagem terá um caractere correspondente da chave.\n
-Em seguida, cada letra da mensagem e da chave é convertida para sua posição no alfabeto (por exemplo: A = 0, B = 1, C = 2, ..., Z = 25). Para criptografar, somam-se os valores numéricos da letra da mensagem e da letra da chave que estão na mesma posição. O resultado dessa soma é então reduzido usando a operação de módulo 26, garantindo que o valor permaneça dentro do intervalo do alfabeto.\n
-O número obtido após o módulo 26 é convertido novamente para uma letra, gerando assim o caractere cifrado correspondente. Esse processo é repetido para todos os caracteres da mensagem, formando o texto criptografado.\n
-Uma forma alternativa de visualizar esse processo é por meio da tabela de Vigenère. Nessa tabela, o alfabeto aparece tanto no topo quanto na lateral esquerda. Cada linha representa o alfabeto deslocado de acordo com a letra da chave.\n
-Para encontrar o caractere cifrado utilizando a tabela, localiza-se a coluna correspondente à letra da mensagem e a linha correspondente à letra da chave. A letra na interseção entre essa linha e coluna será o resultado da criptografia para aquela posição.\n
-Dessa forma, a Cifra de Vigenère consegue aplicar diferentes deslocamentos ao longo da mensagem, dificultando a análise de padrões e aumentando a segurança da criptografia.
+    Para iniciar o processo, a chave é repetida ou ajustada até possuir o mesmo comprimento da mensagem. Assim, cada caractere da mensagem terá um caractere correspondente da chave.\n
+    Em seguida, cada letra da mensagem e da chave é convertida para sua posição no alfabeto (por exemplo: A = 0, B = 1, C = 2, ..., Z = 25). Para criptografar, somam-se os valores numéricos da letra da mensagem e da letra da chave que estão na mesma posição. O resultado dessa soma é então reduzido usando a operação de módulo 26, garantindo que o valor permaneça dentro do intervalo do alfabeto.\n
+    O número obtido após o módulo 26 é convertido novamente para uma letra, gerando assim o caractere cifrado correspondente. Esse processo é repetido para todos os caracteres da mensagem, formando o texto criptografado.\n
+    Uma forma alternativa de visualizar esse processo é por meio da tabela de Vigenère. Nessa tabela, o alfabeto aparece tanto no topo quanto na lateral esquerda. Cada linha representa o alfabeto deslocado de acordo com a letra da chave.\n
+    Para encontrar o caractere cifrado utilizando a tabela, localiza-se a coluna correspondente à letra da mensagem e a linha correspondente à letra da chave. A letra na interseção entre essa linha e coluna será o resultado da criptografia para aquela posição.\n
+    Dessa forma, a Cifra de Vigenère consegue aplicar diferentes deslocamentos ao longo da mensagem, dificultando a análise de padrões e aumentando a segurança da criptografia.
 `,
 
     substitution: `A cifra de substituição é um método de criptografia no qual cada caractere da mensagem original é substituído por outro caractere do alfabeto. Essa substituição segue uma regra fixa, garantindo que duas letras diferentes nunca sejam mapeadas para o mesmo caractere, mantendo uma correspondência única entre elas.\n
-Na visualização apresentada, o alfabeto em sua ordem padrão é exibido na linha superior, enquanto uma versão embaralhada (uma permutação aleatória) aparece logo abaixo. Para criptografar a mensagem, cada letra do texto original é substituída pela letra correspondente na mesma posição da linha inferior, formando assim a mensagem cifrada.\n
-Embora esse método esconda a mensagem original, ele não é considerado seguro. A cifra de substituição é vulnerável à análise de frequência, uma técnica que observa quais letras aparecem com maior frequência no texto cifrado e as compara com as letras mais comuns do idioma. Dessa forma, é possível identificar padrões e, eventualmente, descobrir a mensagem original.`,
+    Na visualização apresentada, o alfabeto em sua ordem padrão é exibido na linha superior, enquanto uma versão embaralhada (uma permutação aleatória) aparece logo abaixo. Para criptografar a mensagem, cada letra do texto original é substituída pela letra correspondente na mesma posição da linha inferior, formando assim a mensagem cifrada.\n
+    Embora esse método esconda a mensagem original, ele não é considerado seguro. A cifra de substituição é vulnerável à análise de frequência, uma técnica que observa quais letras aparecem com maior frequência no texto cifrado e as compara com as letras mais comuns do idioma. Dessa forma, é possível identificar padrões e, eventualmente, descobrir a mensagem original.`,
 
     shift: `A cifra de deslocamento é um método de criptografia no qual cada letra da mensagem é substituída por outra, obtida ao se deslocar um número fixo de posições (X) no alfabeto.\n
-Na visualização apresentada, há dois anéis contendo as letras do alfabeto: o anel interno representa as letras da mensagem original, enquanto o anel externo mostra os caracteres criptografados.\n
-Ao rotacionar o anel interno em X posições, cada letra da mensagem original passa a se alinhar com uma nova letra no anel externo. A criptografia é realizada substituindo-se cada letra original pelo caractere correspondente alinhado no anel externo.`,
+    Na visualização apresentada, há dois anéis contendo as letras do alfabeto: o anel interno representa as letras da mensagem original, enquanto o anel externo mostra os caracteres criptografados.\n
+    Ao rotacionar o anel interno em X posições, cada letra da mensagem original passa a se alinhar com uma nova letra no anel externo. A criptografia é realizada substituindo-se cada letra original pelo caractere correspondente alinhado no anel externo.`,
   },
 
   imageCompression: {
     rle: `O algoritmo Run-Length Encoding (RLE) é uma técnica de compressão de dados sem perdas que reduz o tamanho de uma imagem ao eliminar redundâncias. Redundância ocorre quando há repetições consecutivas de um mesmo valor, como pixels com a mesma cor.\n
-O funcionamento do RLE é simples: ao percorrer a imagem (pixel a pixel, geralmente da esquerda para a direita e de cima para baixo), o algoritmo identifica sequências de pixels com o mesmo valor. Em vez de armazenar cada pixel individualmente, ele armazena apenas dois valores: a quantidade de repetições e o valor do pixel.\n
-Por exemplo, uma sequência como: [azul, azul, azul, azul]\n
-pode ser representada como: (4, azul)\n
-Na visualização apresentada, o sistema percorre a imagem e agrupa pixels consecutivos iguais, formando pares (quantidade, valor). Cada par representa um trecho da imagem comprimida.\n
-Ao final do processo, é possível calcular o tamanho da imagem comprimida considerando que cada par ocupa uma quantidade fixa de bytes (por exemplo, 1 byte para a quantidade e 1 byte para o valor, dependendo da implementação). Esse valor pode então ser comparado com o tamanho original da imagem, que normalmente considera 1 byte por pixel.\n
-Com isso, também é possível calcular a porcentagem de redução obtida com a compressão.\n
-É importante destacar que o RLE é mais eficiente em imagens com alta redundância, ou seja, com grandes áreas de cor uniforme. Em imagens com muita variação de cores (como fotografias), o algoritmo pode não ser eficaz e, em alguns casos, pode até aumentar o tamanho dos dados.`,
+    O funcionamento do RLE é simples: ao percorrer a imagem (pixel a pixel, geralmente da esquerda para a direita e de cima para baixo), o algoritmo identifica sequências de pixels com o mesmo valor. Em vez de armazenar cada pixel individualmente, ele armazena apenas dois valores: a quantidade de repetições e o valor do pixel.\n
+    Por exemplo, uma sequência como: [azul, azul, azul, azul]\n
+    pode ser representada como: (4, azul)\n
+    Na visualização apresentada, o sistema percorre a imagem e agrupa pixels consecutivos iguais, formando pares (quantidade, valor). Cada par representa um trecho da imagem comprimida.\n
+    Ao final do processo, é possível calcular o tamanho da imagem comprimida considerando que cada par ocupa uma quantidade fixa de bytes (por exemplo, 1 byte para a quantidade e 1 byte para o valor, dependendo da implementação). Esse valor pode então ser comparado com o tamanho original da imagem, que normalmente considera 1 byte por pixel.\n
+    Com isso, também é possível calcular a porcentagem de redução obtida com a compressão.\n
+    É importante destacar que o RLE é mais eficiente em imagens com alta redundância, ou seja, com grandes áreas de cor uniforme. Em imagens com muita variação de cores (como fotografias), o algoritmo pode não ser eficaz e, em alguns casos, pode até aumentar o tamanho dos dados.`,
 
     huffman: `O algoritmo de compressão de Huffman é uma técnica de compressão sem perdas que reduz o tamanho de uma imagem ao atribuir códigos para cada tipo de informação (como cor), sendo que informações mais frequentes recebem códigos mais curtos.\n
     Para isso, cria-se uma tabela auxiliar que contém todos os tipos de informação contidos na imagem e a frequência em que aparecem. Em seguida, cria-se códigos para cada tipo de informação.\n
@@ -46,9 +46,29 @@ Com isso, também é possível calcular a porcentagem de redução obtida com a 
     N | 2 | 01\n
     Para poder recriar o dado original, é necessário enviar a tabela contendo símbolo + código. No exemplo acima, temos B + 00 = 8 bits + 2 bits = 10 bits, A + 1 = 8 bits + 1 bit = 9 bits e N + 01 = 8 bits + 2 bits = 10 bits, tendo tamanho total de 29 bits. 
     Recriando a mensagem original, temos BANANA > 001011011.\n 
-    Note que utilizamos 9 bits para representar a mensagem e 29 bits para a tabela, enquanto a versão original utilizava (assumindo ASCII ou UTF-8) 8 bits (1 byte) por caractere. Dessa forma, reduzimos o tamanho de 48 bits para 38.`
-  },
+    Note que utilizamos 9 bits para representar a mensagem e 29 bits para a tabela, enquanto a versão original utilizava (assumindo ASCII ou UTF-8) 8 bits (1 byte) por caractere. Dessa forma, reduzimos o tamanho de 48 bits para 38.`,
 
+    lzw: `A codificação Lempel-Ziv-Welch, mais conhecida como LZW, é um algoritmo de compressão sem perdas baseado na substituição de sequências de dados por códigos. Para isso, utiliza-se um dicionário auxiliar, que irá armazenar a sequência e o código atribuído.\n
+    Inicialmente, o dicionário já contém todos os símbolos individuais presentes nos dados (por exemplo, cada cor da imagem ou cada letra diferente em uma palavra). Em seguida, começa-se a percorrer a imagem, verificando a cada passo se a sequência atual já está no dicionário. Caso já esteja, olha-se para o próximo dado. Caso contrário, cria-se uma nova entrada no dicionário com essa sequência e um novo código.\n
+    Por fim, os dados originais são substituídos pelos códigos das sequências encontradas. Durante a compressão, o algoritmo adiciona novas sequências ao dicionário e reutiliza seus códigos sempre que elas aparecem novamente.\n
+    Por exemplo, considerando a palavra BANANA:\n
+    Dicionário inicial:\n
+    B | 0\n
+    A | 1\n
+    N | 2\n
+    Começamos lendo os dados:\n
+    1. [B] já existe no dicionário. Ao ler o próximo símbolo, temos [BA]. Como essa sequência ainda não existe, ela é adicionada ao dicionário com o código 3. Nesse momento, emitimos o código da sequência já conhecida, [B]. Saída: 0\n
+    B | 0\n
+    A | 1\n
+    N | 2\n
+    BA | 3\n
+    2. Recomeçamos a partir de [A]. Ao ler o próximo símbolo, obtemos [AN]. Como ela ainda não existe, adicionamos AN | 4. Em seguida, emitimos o código de [A]: Saída: 0 1\n
+    3. Em seguida, [N] já existe. Ao ler o próximo símbolo, temos [NA], que é adicionada: NA | 5. Então emitimos o código de [N]: Saída: 0 1 2\n
+    4. Depois, [A] já existe. Ao ler o próximo símbolo, obtemos [AN], que também já existe no dicionário. Continuando a leitura, temos [ANA], que ainda não existe, então ela é adicionada: ANA | 6. Nesse caso, emitimos o código da maior sequência já existente, [AN]: Saída: 0 1 2 4\n
+    5. Por fim, sobra apenas [A], que já existe no dicionário, então emitimos seu código: Saída final: 0 1 2 4 1\n
+    Ao final, a palavra pode ser representada utilizando os códigos das sequências encontradas no dicionário: BANANA - [B] [A] [N] [AN] [A] - 0 1 2 4 1\n
+    Considerando uma representação simplificada em que cada código utiliza 3 bits (quantidade suficiente para representar o maior código criado), a sequência comprimida ocupa 15 bits, menos espaço do que os 48 bits originais da palavra em ASCII (6 letras x 8 bits).\n`,
+  },
 
   numberBases: {
     binaryDecimal: `A conversão de um número binário para um decimal é baseada no uso das potências de 2.\n
@@ -70,7 +90,7 @@ Com isso, também é possível calcular a porcentagem de redução obtida com a 
     4. 4 ÷ 2 = 2, resto 0\n
     5. 2 ÷ 2 = 1, resto 0\n
     6. 1 ÷ 2 = 0, resto 1\n
-    Lendo os restos de baixo para cima (do último até o primeiro), observa-se o valor correspondente em binário: 100011`
+    Lendo os restos de baixo para cima (do último até o primeiro), observa-se o valor correspondente em binário: 100011`,
   },
 
   binaryArithmetic: {
@@ -82,7 +102,7 @@ Com isso, também é possível calcular a porcentagem de redução obtida com a 
     1 + 1 = 10, que equivale ao 2 em decimal\n
     1 + 1 + 1 (carry da operação anterior) = 11, que equivale ao 3 em decimal\n
     Sabendo disso, calcula-se da mesma forma que em uma soma decimal: caso a soma dos dois valores ocupe mais que uma casa (ou seja, caso resulte em 10 ou 11), o bit menos significativo (valor mais à direita) fica como resultado dessa coluna, enquanto o outro é passado para a próxima coluna como carry.`,
-    
+
     subtraction: `A subtração de dois números binários pode ser realizada de algumas formas diferentes, mas uma das mais comuns é a com complemento de 2.\n
     Esse processo é baseado na seguinte igualdade: A - B = A + (-B).\n
     O complemento de 2 permite representar valores negativos em binário (começam com 1). Logo, para poder realizar a subtração, soma-se A com o complemento de 2 de B (que significa -B).\n

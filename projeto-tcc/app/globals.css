@@ -33,27 +33,35 @@
   --red-light: oklch(0.5667 0.2335 25.06);
   --red-pastel: oklch(0.6814 0.1348 25.06);
 
+  --pink-strong: oklch(0.421 0.214 345);
+  --pink-light: oklch(0.592 0.205 345);
+  --pink-pastel: oklch(0.742 0.125 345);
+
   --color-blue: var(--blue-light);
   --color-purple: var(--purple-light);
   --color-red: var(--red-light);
+  --color-pink: var(--pink-light);
 }
 
 :root[data-contrast="low"] {
   --color-blue: var(--blue-pastel);
   --color-purple: var(--purple-pastel);
   --color-red: var(--red-pastel);
+  --color-pink: var(--pink-pastel);
 }
 
 :root[data-contrast="medium"] {
   --color-blue: var(--blue-light);
   --color-purple: var(--purple-light);
   --color-red: var(--red-light);
+  --color-pink: var(--pink-light);
 }
 
 :root[data-contrast="high"] {
   --color-blue: var(--blue-strong);
   --color-purple: var(--purple-strong);
   --color-red: var(--red-strong);
+  --color-pink: var(--pink-strong);
 }
 
 @theme inline {
@@ -63,14 +71,17 @@
   --color-blue: var(--color-blue);
   --color-purple: var(--color-purple);
   --color-red: var(--color-red);
+  --color-pink: var(--color-pink);
 
   --color-preview-blue-strong: var(--blue-strong);
   --color-preview-purple-strong: var(--purple-strong);
   --color-preview-red-strong: var(--red-strong);
+  --color-preview-pink-strong: var(--pink-strong);
 
   --color-preview-blue-pastel: var(--blue-pastel);
   --color-preview-purple-pastel: var(--purple-pastel);
   --color-preview-red-pastel: var(--red-pastel);
+  --color-preview-pink-pastel: var(--pink-pastel);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
