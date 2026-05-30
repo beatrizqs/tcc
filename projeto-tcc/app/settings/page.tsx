@@ -2,15 +2,8 @@
 
 import Button from "@/components/Button";
 import MainPageTitle from "@/components/MainPageTitle";
-import {
-  FormControl,
-  Radio,
-  RadioGroup,
-  Slider,
-} from "@mui/material";
-import { useSettings } from "@/contexts/SettingsContext";
-
-type ContrastLevel = "low" | "medium" | "high";
+import { FormControl, Radio, RadioGroup } from "@mui/material";
+import { ContrastLevel, useSettings } from "@/contexts/SettingsContext";
 
 function ContrastCard({
   contrast,
@@ -69,28 +62,14 @@ function ContrastCard({
 }
 
 export default function Configuracoes() {
-  const { zoom, contrast, setZoom, setContrast, reset } =
-    useSettings();
+  const { contrast, setContrast, reset } = useSettings();
 
   return (
     <div className="flex flex-col items-center">
       <MainPageTitle title={"Configurações"} />
 
-      <div className="flex flex-col gap-4 2xl:gap-12 w-full items-center">
-        {/* Zoom */}
-        <div className="flex flex-col w-[80%] max-w-[700px]">
-          <p className="font-common font-medium">Zoom</p>
-
-          <Slider
-            value={zoom}
-            onChange={(_, value) => setZoom(value as number)}
-            valueLabelDisplay="auto"
-            step={10}
-            min={50}
-            max={150}
-            sx={{ color: "var(--color-blue)" }}
-          />
-        </div>
+      <div className="flex flex-col gap-12 2xl:gap-16 w-full items-center">
+        
 
         {/* Contraste */}
         <div className="flex flex-col gap-3 w-[80%] max-w-[700px]">

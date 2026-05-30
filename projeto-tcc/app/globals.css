@@ -37,10 +37,15 @@
   --pink-light: oklch(0.592 0.205 345);
   --pink-pastel: oklch(0.742 0.125 345);
 
+  --black-strong: oklch(0 0 0);
+  --black-light: oklch(0 0 0);
+  --black-pastel: oklch(0.55 0 0);
+
   --color-blue: var(--blue-light);
   --color-purple: var(--purple-light);
   --color-red: var(--red-light);
   --color-pink: var(--pink-light);
+  --color-black: var(--black-light);
 }
 
 :root[data-contrast="low"] {
@@ -48,6 +53,7 @@
   --color-purple: var(--purple-pastel);
   --color-red: var(--red-pastel);
   --color-pink: var(--pink-pastel);
+  --color-black: var(--black-pastel);
 }
 
 :root[data-contrast="medium"] {
@@ -55,6 +61,7 @@
   --color-purple: var(--purple-light);
   --color-red: var(--red-light);
   --color-pink: var(--pink-light);
+  --color-black: var(--black-light);
 }
 
 :root[data-contrast="high"] {
@@ -62,6 +69,7 @@
   --color-purple: var(--purple-strong);
   --color-red: var(--red-strong);
   --color-pink: var(--pink-strong);
+  --color-black: var(--black-strong);
 }
 
 @theme inline {
@@ -72,16 +80,19 @@
   --color-purple: var(--color-purple);
   --color-red: var(--color-red);
   --color-pink: var(--color-pink);
+  --color-black: var(--color-black);
 
   --color-preview-blue-strong: var(--blue-strong);
   --color-preview-purple-strong: var(--purple-strong);
   --color-preview-red-strong: var(--red-strong);
   --color-preview-pink-strong: var(--pink-strong);
+  --color-preview-black-strong: var(--black-strong);
 
   --color-preview-blue-pastel: var(--blue-pastel);
   --color-preview-purple-pastel: var(--purple-pastel);
   --color-preview-red-pastel: var(--red-pastel);
   --color-preview-pink-pastel: var(--pink-pastel);
+  --color-preview-black-pastel: var(--black-pastel);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

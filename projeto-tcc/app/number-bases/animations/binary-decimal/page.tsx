@@ -6,7 +6,7 @@ import MainPageTitle from "@/components/MainPageTitle";
 import SidePageTitle from "@/components/SidePageTitle";
 import TextualExplanation from "@/components/TextualExplanation";
 import { explanations } from "@/utils/explanations";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -389,32 +389,110 @@ export default function BinaryDecimal() {
           )}
         </div>
 
-        {/* Buttons */}
-        <div className={`flex flex-row gap-4 items-center mx-auto  mb-5`}>
+         {/* Buttons */}
+      <motion.div
+        layout
+        transition={{
+          duration: 0.4,
+          ease: "easeOut",
+        }}
+        className="flex flex-row gap-4 items-center mx-auto mb-5"
+      >
+        <AnimatePresence >
           {isRunning ? (
             <>
-              <Button
-                text={isPaused ? "Continuar" : "Pausar"}
-                onClick={() => setIsPaused((p) => !p)}
-              />
-              {isPaused && <Button text={"Reiniciar"} onClick={reset} />}
-              {isPaused && <Button text={"Finalizar"} onClick={finish} />}
+              <motion.div
+                layout
+                key="pause"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeOut",
+                }}
+              >
+                <Button
+                  text={isPaused ? "Continuar" : "Pausar"}
+                  onClick={() => setIsPaused((p) => !p)}
+                />
+              </motion.div>
+
+              {isPaused && (
+                <motion.div
+                  layout
+                  key="restart"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <Button text="Reiniciar" onClick={reset} />
+                </motion.div>
+              )}
+
+              {isPaused && (
+                <motion.div
+                  layout
+                  key="finish"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1}}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <Button text="Finalizar" onClick={finish} />
+                </motion.div>
+              )}
             </>
           ) : (
             <>
-              <Button
-                text={!currentStep ? "Iniciar" : "Repetir"}
-                onClick={reset}
-              />
-              <Button
-                text="Explicação"
-                onClick={() => {
-                  setShowExplanation(true);
+              <motion.div
+                layout
+                key="start"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeOut",
                 }}
-              />
+              >
+                <Button
+                  text={!currentStep ? "Iniciar" : "Repetir"}
+                  onClick={reset}
+                />
+              </motion.div>
+
+              <motion.div
+                layout
+                key="explanation"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeOut",
+                }}
+              >
+                <Button
+                  text="Explicação"
+                  onClick={() => {
+                    setShowExplanation(true);
+                  }}
+                />
+              </motion.div>
             </>
           )}
-        </div>
+        </AnimatePresence>
+      </motion.div>
       </div>
 
       <TextualExplanation

@@ -56,20 +56,30 @@ export default function BasesNumericas() {
 
       // Source and target bases must be different
       if (
-        values.baseOrigem &&
-        values.baseDestino &&
-        values.baseOrigem === values.baseDestino
+        values.sourceBase &&
+        values.targetBase &&
+        values.sourceBase === values.targetBase
       ) {
-        errors.baseDestino =
+        errors.targetBase =
           "Base destino deve ser diferente da base de origem";
       }
 
-      if (values.baseOrigem && values.baseOrigem === BASES.BINARY) {
+      if (values.sourceBase && values.sourceBase === BASES.BINARY && values.number) {
         // Validate binary digits
-        if (!isBinary(values.numero.toString())) {
-          errors.numero =
+        if (!isBinary(values.number.toString())) {
+          errors.number =
             "Valor deve ser compatível com a base de origem selecionada";
         }
+
+        if (values.number.toString().length > 10) {
+          errors.number =
+          "Insira um valor binário de até 10 dígitos";
+        }
+      }
+
+      if (values.number && /\D/.test(values.number.toString())) {
+        errors.number =
+            "Insira apenas números inteiros";
       }
     }
 

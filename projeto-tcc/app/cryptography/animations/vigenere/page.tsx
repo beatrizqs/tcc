@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
 import { alphabet, ALPHABET_ARRAY } from "@/utils/alphabet";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import TextualExplanation from "@/components/TextualExplanation";
 import { explanations } from "@/utils/explanations";
 
@@ -162,128 +162,203 @@ export default function Vigenere() {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
   return (
-    <div className="flex flex-col w-full h-[calc(100vh-100px)]">
+    <div className="flex flex-col w-full h-[calc(100vh-100px)] text-black">
       <div className="grid grid-cols-2">
         <div className="flex flex-col">
-          <SidePageTitle
-            title={"Criptografia"}
-            href={"/cryptography/params"}
-          />
+          <SidePageTitle title={"Criptografia"} href={"/cryptography/params"} />
           <MainPageTitle title="Cifra de Vigenère" noMargin className="mt-5" />
 
-          {(isRunning || currentStep) && (
-            <div className="flex flex-col  w-full overflow-y-auto flex-1 font-title">
-              {/* Message cryptography */}
-              <div className="flex flex-col gap-4 text-2xl mx-auto text-blue font-title font-bold items-center my-10">
-                {/* Key */}
-                <div className="flex flex-row gap-3 items-center">
-                  <p>Chave =</p>
-                  <div className="border border-blue rounded-md py-[2px] px-2">
-                    {key}
-                  </div>
-                </div>
-
-                {/* Table containing message, expanded key and result */}
-                <div className="border-1 border-black rounded-md overflow-hidden">
-                  <table className=" text-2xl">
-                    <tbody>
-                      {/* Message */}
-                      <tr>
-                        {message.split("").map((char, i) => {
-                          return (
-                            <td
-                              key={`${char}-${i}`}
-                              className={`p-3 transition ease-in-out border-black border-1 text-black ${
-                                currentStep?.index === i && "bg-blue/25"
-                              }`}
-                            >
-                              {char}
-                            </td>
-                          );
-                        })}
-                      </tr>
-
-                      {/* Key */}
-                      <tr>
-                        {formattedKey
-                          .split("")
-                          .map((char, i) => {
-                            return (
-                              <td
-                                key={`${char}-${i}`}
-                                className={`p-3 transition ease-in-out border-black border-1 text-black ${
-                                  currentStep?.index === i && "bg-blue/25"
-                                }`}
-                              >
-                                {char}
-                              </td>
-                            );
-                          })}
-                      </tr>
-
-                      {/* Cyphertext */}
-                      <tr>
-                        {cyphertext.split("").map((char, i) => {
-                          return (
-                            <td
-                              key={`${char}-${i}`}
-                              className={`p-3 text-blue transition ease-in-out border-black border-1 border-t-2 ${
-                                visibleResult < i ? "opacity-0" : "opacity-100"
-                              }`}
-                            >
-                              {char}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    </tbody>
-                  </table>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={isRunning || currentStep ? { opacity: 1 } : { opacity: 0 }}
+            className="flex flex-col  w-full overflow-y-auto flex-1 font-title"
+          >
+            {/* Message cryptography */}
+            <div className="flex flex-col gap-4 text-2xl mx-auto text-blue font-title font-bold items-center my-10">
+              {/* Key */}
+              <div className="flex flex-row gap-3 items-center">
+                <p>Chave =</p>
+                <div className="border border-blue rounded-md py-[2px] px-2">
+                  {key}
                 </div>
               </div>
 
-              {/* Result */}
-              {showResult && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3, duration: 0.3 }}
-                  className="flex flex-row gap-3 text-black text-2xl mx-auto font-title font-bold items-center "
-                >
-                  <p>{message} → </p>
-                  <div className="border border-blue rounded-md py-1 px-3 text-blue">
-                    {cyphertext}
-                  </div>
-                </motion.div>
-              )}
+              {/* Table containing message, expanded key and result */}
+              <div className="border-1 border-black rounded-md overflow-hidden">
+                <table className=" text-2xl">
+                  <tbody>
+                    {/* Message */}
+                    <tr>
+                      {message.split("").map((char, i) => {
+                        return (
+                          <td
+                            key={`${char}-${i}`}
+                            className={`p-3 transition ease-in-out border-black border-1 text-black ${
+                              currentStep?.index === i && "bg-blue/25"
+                            }`}
+                          >
+                            {char}
+                          </td>
+                        );
+                      })}
+                    </tr>
+
+                    {/* Key */}
+                    <tr>
+                      {formattedKey.split("").map((char, i) => {
+                        return (
+                          <td
+                            key={`${char}-${i}`}
+                            className={`p-3 transition ease-in-out border-black border-1 text-black ${
+                              currentStep?.index === i && "bg-blue/25"
+                            }`}
+                          >
+                            {char}
+                          </td>
+                        );
+                      })}
+                    </tr>
+
+                    {/* Cyphertext */}
+                    <tr>
+                      {cyphertext.split("").map((char, i) => {
+                        return (
+                          <td
+                            key={`${char}-${i}`}
+                            className={`p-3 text-blue transition ease-in-out border-black border-1 border-t-2 ${
+                              visibleResult < i ? "opacity-0" : "opacity-100"
+                            }`}
+                          >
+                            {char}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-          )}
+
+            {/* Result */}
+            {showResult && (
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
+                className="flex flex-row gap-3 text-black text-2xl mx-auto font-title font-bold items-center "
+              >
+                <p>{message} → </p>
+                <div className="border border-blue rounded-md py-1 px-3 text-blue">
+                  {cyphertext}
+                </div>
+              </motion.div>
+            )}
+          </motion.div>
 
           {/* Buttons */}
-          <div className={`flex flex-row gap-4 items-center mx-auto mt-8 mb-5`}>
-            {isRunning ? (
-              <>
-                <Button
-                  text={isPaused ? "Continuar" : "Pausar"}
-                  onClick={() => setIsPaused((p) => !p)}
-                />
-                {isPaused && <Button text={"Reiniciar"} onClick={reset} />}
-                {isPaused && <Button text={"Finalizar"} onClick={finish} />}
-              </>
-            ) : (
-              <>
-                <Button
-                  text={!currentStep ? "Iniciar" : "Repetir"}
-                  onClick={reset}
-                />
-                <Button
-                  text="Explicação"
-                  onClick={() => {
-                    setShowExplanation(true);
-                  }}
-                />
-              </>
-            )}
-          </div>
+          <motion.div
+            layout
+            transition={{
+              duration: 0.4,
+              ease: "easeOut",
+            }}
+            className="flex flex-row gap-4 items-center mx-auto mt-8 mb-5"
+          >
+            <AnimatePresence>
+              {isRunning ? (
+                <>
+                  <motion.div
+                    layout
+                    key="pause"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <Button
+                      text={isPaused ? "Continuar" : "Pausar"}
+                      onClick={() => setIsPaused((p) => !p)}
+                    />
+                  </motion.div>
+
+                  {isPaused && (
+                    <motion.div
+                      layout
+                      key="restart"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        ease: "easeOut",
+                      }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <Button text="Reiniciar" onClick={reset} />
+                    </motion.div>
+                  )}
+
+                  {isPaused && (
+                    <motion.div
+                      layout
+                      key="finish"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        ease: "easeOut",
+                      }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <Button text="Finalizar" onClick={finish} />
+                    </motion.div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <motion.div
+                    layout
+                    key="start"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <Button
+                      text={!currentStep ? "Iniciar" : "Repetir"}
+                      onClick={reset}
+                    />
+                  </motion.div>
+
+                  <motion.div
+                    layout
+                    key="explanation"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <Button
+                      text="Explicação"
+                      onClick={() => {
+                        setShowExplanation(true);
+                      }}
+                    />
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
         {/* Vigenère table */}
         <div className="flex flex-col items-center gap-1 font-title justify-center mt-2 2xl:mt-10">

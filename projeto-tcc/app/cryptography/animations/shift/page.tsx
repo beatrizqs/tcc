@@ -4,7 +4,7 @@ import MainPageTitle from "@/components/MainPageTitle";
 import SidePageTitle from "@/components/SidePageTitle";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Button from "@/components/Button";
 import { alphabet, ALPHABET_ARRAY } from "@/utils/alphabet";
 import { explanations } from "@/utils/explanations";
@@ -13,6 +13,7 @@ import TextualExplanation from "@/components/TextualExplanation";
 export default function Shift() {
   // Animation control
   const [currentStep, setCurrentStep] = useState(-1);
+  const [highlighted, setHighlighted] = useState(-1) // Index of the highligjted cell
 
   // Wheel
   const [rotation, setRotation] = useState(0);
@@ -69,6 +70,7 @@ export default function Shift() {
     try {
       setIsRunning(true);
 
+      // Wheel
       for (let i = 0; i <= shift; i++) {
         await waitStep(50, id);
 
@@ -80,10 +82,12 @@ export default function Shift() {
         await waitStep(1000, id);
       }
 
+      // Table
       for (let i = 0; i < message.length; i++) {
         await waitStep(50, id);
 
         setCurrentStep(i);
+        setHighlighted(i)
 
         // Shows output character
         await waitStep(1000, id);
@@ -91,6 +95,8 @@ export default function Shift() {
 
         await waitStep(800, id);
       }
+
+      setHighlighted(-1)
       setIsRunning(false);
       setShowResult(true);
     } catch (error) {
@@ -150,19 +156,23 @@ export default function Shift() {
   }
 
   return (
-    <div className="flex flex-col w-full h-[calc(100vh-90px)]">
+    <div className="flex flex-col w-full h-[calc(100vh-90px)] text-black">
       <SidePageTitle title={"Criptografia"} href={"/cryptography/params"} />
       <MainPageTitle title="Cifra de deslocamento" noMargin />
 
       <div className="flex flex-row items-center justify-between font-title w-[85%] 2xl:w-[60%] mx-auto h-full">
         {/* Outter wheel */}
         <div className="flex flex-col gap-4 items-center">
-          <div
+          <motion.div
             className="relative size-100 2xl:size-140 rounded-full border "
-            style={{
+            animate={{
               background: getGradient(
                 alphabet.letterToIndex[result.toUpperCase()[currentStep]] || -1
               ),
+            }}
+            transition={{
+              duration: 0.4,
+              ease: "easeInOut",
             }}
           >
             {/* Lines */}
@@ -206,14 +216,27 @@ export default function Shift() {
             })}
 
             {/* Inner wheel */}
-            <div
-              className="absolute top-1/2 left-1/2 size-80 2xl:size-115 rounded-full border transition-transform duration-500 ease-out"
-              style={{
-                transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+            <motion.div
+              className="absolute top-1/2 left-1/2 size-80 2xl:size-115 rounded-full border"
+              initial={{ x: "-50%", y: "-50%" }}
+              animate={{
                 background: getGradient(
                   alphabet.letterToIndex[message.toUpperCase()[currentStep]] ||
                     -1
                 ),
+                rotate: rotation,
+                x: "-50%",
+                y: "-50%",
+              }}
+              transition={{
+                background: {
+                  duration: 0.4,
+                  ease: "easeInOut",
+                },
+                rotate: {
+                  duration: 0.5,
+                  ease: "easeOut",
+                },
               }}
             >
               {/* Lines */}
@@ -263,14 +286,29 @@ export default function Shift() {
                   transform: `translate(-50%, -50%)`,
                 }}
               />
-            </div>
-          </div>
-          <div className="flex flex-row gap-2 text-base 2xl:text-lg items-center">
+            </motion.div>
+          </motion.div>
+
+          {/* Shifted positions */}
+          <motion.div className="flex flex-row gap-2 text-base 2xl:text-lg items-center mt-5">
             <p>Casas deslocadas =</p>
-            <div className="border border-blue rounded-md py-[2px] px-2">
-              {shiftedPositions}
-            </div>
-          </div>
+            <motion.div className="border border-blue rounded-md py-[2px] px-2 min-w-10 text-center">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={shiftedPositions}
+                  initial={{ opacity: 0, y: 3 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -3 }}
+                  transition={{
+                    duration: 0.35,
+                    ease: "easeOut",
+                  }}
+                >
+                  {shiftedPositions}
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
         </div>
 
         {/* Shift, message and result */}
@@ -285,7 +323,11 @@ export default function Shift() {
             </div>
 
             {/* Table */}
-            <div className="border-1 border-black rounded-md overflow-hidden">
+            <motion.div
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+              className="border-1 border-black rounded-md overflow-hidden font-title"
+            >
               <table className=" text-2xl 2xl:text-3xl">
                 <tbody>
                   {/* Message */}
@@ -294,8 +336,8 @@ export default function Shift() {
                       return (
                         <td
                           key={`${char}-${i}`}
-                          className={`p-3 2xl:p-5 transition ease-in-out border-black border-1 text-black ${
-                            currentStep === i && "bg-blue/25"
+                          className={`p-3 2xl:p-5 transition ease-in-out duration-300 border-black border-1 text-black ${
+                            highlighted === i && "bg-blue/25"
                           }`}
                         >
                           {char}
@@ -310,63 +352,145 @@ export default function Shift() {
                       return (
                         <td
                           key={`${char}-${i}`}
-                          className={`p-3 2xl:p-5 text-blue transition ease-in-out border-black border-1 border-t-2 ${
-                            visibleResult < i ? "opacity-0" : "opacity-100"
-                          }`}
+                          className={`p-3 2xl:p-5 text-blue transition ease-in-out border-black border-1 border-t-2`}
                         >
-                          {char}
+                          <motion.div
+                            initial={{ opacity: 0, y: 3 }}
+                            animate={
+                              visibleResult < i
+                                ? { opacity: 0, y: 3 }
+                                : { opacity: 1, y: 0 }
+                            }
+                            transition={{ duration: 0.4 }}
+                          >
+                            {char}
+                          </motion.div>
                         </td>
                       );
                     })}
                   </tr>
                 </tbody>
               </table>
-            </div>
+            </motion.div>
           </div>
 
           {/* Result */}
-          {showResult && (
-            <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.3 }}
-              className="flex flex-row gap-3 text-black text-2xl mx-auto font-bold items-center "
-            >
-              <p>{message} → </p>
-              <div className="border border-blue rounded-md py-1 px-3 text-blue">
-                {result}
-              </div>
-            </motion.div>
-          )}
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={showResult ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-row gap-3 text-black text-2xl mx-auto font-bold items-center "
+          >
+            <p>{message} → </p>
+            <div className="border border-blue rounded-md py-1 px-3 text-blue">
+              {result}
+            </div>
+          </motion.div>
 
           {/* Buttons */}
-          <div
-            className={`flex flex-row gap-4 items-center mx-auto mt-8 mb-5 justify-end`}
+          <motion.div
+            layout
+            transition={{
+              duration: 0.4,
+              ease: "easeOut",
+            }}
+            className="flex flex-row gap-4 items-center mx-auto mb-5 mt-8 justify-end"
           >
-            {isRunning ? (
-              <>
-                <Button
-                  text={isPaused ? "Continuar" : "Pausar"}
-                  onClick={() => setIsPaused((p) => !p)}
-                />
-                {isPaused && <Button text={"Reiniciar"} onClick={reset} />}
-                {isPaused && <Button text={"Finalizar"} onClick={finish} />}
-              </>
-            ) : (
-              <>
-                <Button
-                  text={currentStep == -1 ? "Iniciar" : "Repetir"}
-                  onClick={reset}
-                />
-                <Button
-                  text="Explicação"
-                  onClick={() => {
-                    setShowExplanation(true);
-                  }}
-                />
-              </>
-            )}
-          </div>
+            <AnimatePresence>
+              {isRunning ? (
+                <>
+                  <motion.div
+                    layout
+                    key="pause"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <Button
+                      text={isPaused ? "Continuar" : "Pausar"}
+                      onClick={() => setIsPaused((p) => !p)}
+                    />
+                  </motion.div>
+
+                  {isPaused && (
+                    <motion.div
+                      layout
+                      key="restart"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        ease: "easeOut",
+                      }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <Button text="Reiniciar" onClick={reset} />
+                    </motion.div>
+                  )}
+
+                  {isPaused && (
+                    <motion.div
+                      layout
+                      key="finish"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        ease: "easeOut",
+                      }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <Button text="Finalizar" onClick={finish} />
+                    </motion.div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <motion.div
+                    layout
+                    key="start"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <Button
+                      text={currentStep === -1 ? "Iniciar" : "Repetir"}
+                      onClick={reset}
+                    />
+                  </motion.div>
+
+                  <motion.div
+                    layout
+                    key="explanation"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <Button
+                      text="Explicação"
+                      onClick={() => {
+                        setShowExplanation(true);
+                      }}
+                    />
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
 

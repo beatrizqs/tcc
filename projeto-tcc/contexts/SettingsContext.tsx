@@ -11,9 +11,7 @@ import {
 export type ContrastLevel = "low" | "medium" | "high";
 
 type SettingsContextType = {
-  zoom: number;
   contrast: ContrastLevel;
-  setZoom: (value: number) => void;
   setContrast: (value: ContrastLevel) => void;
   reset: () => void;
 };
@@ -21,13 +19,7 @@ type SettingsContextType = {
 const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [zoom, setZoom] = useState(100);
   const [contrast, setContrast] = useState<ContrastLevel>("medium");
-
-  // Global zoom
-  useEffect(() => {
-    document.documentElement.style.fontSize = `${zoom}%`;
-  }, [zoom]);
 
   //  Global contrast
   useEffect(() => {
@@ -35,16 +27,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, [contrast]);
 
   function reset() {
-    setZoom(100);
     setContrast("medium");
   }
 
   return (
     <SettingsContext.Provider
       value={{
-        zoom,
         contrast,
-        setZoom,
         setContrast,
         reset,
       }}

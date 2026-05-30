@@ -78,7 +78,7 @@ export default function Substitution() {
       <MainPageTitle title="Cifra de substituição" noMargin />
 
       <div className="flex flex-col gap-10 font-title items-center my-10">
-        <h2 className="font-bold text-2xl font-stretch-extra-expanded">
+        <h2 className="font-bold text-2xl font-stretch-extra-expanded text-black">
           {message}
         </h2>
 

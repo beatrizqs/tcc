@@ -8,6 +8,7 @@ import ParamsPage, {
 import { TableRow } from "@/components/Table";
 import { model } from "@/lib/models/binary-arithmetic";
 import { Operation, OPERATION_LABELS, OPERATIONS } from "@/utils/arithmetic";
+import { isBinary } from "@/utils/bases";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -52,6 +53,34 @@ export default function AritmeticaBinaria() {
       for (const field of fields) {
         if (!values[field.name]) {
           errors[field.name] = "Campo obrigatório";
+        }
+      }
+
+      const maxLength = values.operation && values.operation === OPERATIONS.SUBTRACTION ? 7 : 9
+
+      // Value 1
+      if ((values.value1)) {
+        // Validate binary digits
+        if (!isBinary(values.value1.toString())) {
+          errors.value1 =
+            "Valor deve ser binário";
+        }
+
+        if (values.value1.toString().length > maxLength) {
+          errors.value1 = `Insira um valor binário de até ${maxLength} dígitos`;
+        }
+      }
+
+      // Value 2
+      if ((values.value2)) {
+        // Validate binary digits
+        if (!isBinary(values.value2.toString())) {
+          errors.value2 =
+            "Valor deve ser binário";
+        }
+
+        if (values.value2.toString().length > maxLength) {
+          errors.value2 = `Insira um valor binário de até ${maxLength} dígitos`;
         }
       }
     }

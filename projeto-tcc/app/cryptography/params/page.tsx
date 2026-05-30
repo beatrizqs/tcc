@@ -27,9 +27,7 @@ export default function Criptografia() {
     const { message, cypher, params } = source;
 
     if (cypher === CYPHERS.SUBSTITUTION) {
-      router.push(
-        `/cryptography/animations/substitution?message=${message}`
-      );
+      router.push(`/cryptography/animations/substitution?message=${message}`);
     } else if (cypher === CYPHERS.SHIFT) {
       router.push(
         `/cryptography/animations/shift?message=${message}&shift=${params}`
@@ -58,8 +56,45 @@ export default function Criptografia() {
     } else {
       // No empty fields allowed
       for (const field of fields) {
-        if (!values[field.name]) {
+        if (
+          !values[field.name] &&
+          !(
+            values.cypher &&
+            values.cypher === CYPHERS.SUBSTITUTION &&
+            field.name === "params"
+          )
+        ) {
           errors[field.name] = "Campo obrigatório";
+        }
+      }
+
+      if (values.message) {
+        if (/[^a-z]/i.test(values.message.toString())) {
+          errors.message = "Apenas letras do alfabeto latino";
+        }
+
+        if (
+          values.message.toString().length > 13 &&
+          values.cypher &&
+          values.cypher !== CYPHERS.SUBSTITUTION
+        ) {
+          errors.message = "Insira mensagens de até 13 caracteres";
+        }
+      }
+
+      if (values.params) {
+        if (
+          values.cypher === CYPHERS.SHIFT &&
+          /\D/.test(values.params.toString())
+        ) {
+          errors.params = "Insira um número inteiro";
+        }
+
+        if (
+          values.cypher === CYPHERS.VIGENERE &&
+          /[^a-z]/i.test(values.params.toString())
+        ) {
+          errors.params = "Apenas letras do alfabeto latino";
         }
       }
     }
@@ -91,7 +126,7 @@ export default function Criptografia() {
       name: "cypher",
       label: "Cifra",
       options: options,
-      orientation: "column"
+      orientation: "column",
     },
     { type: "input", name: "message", label: "Mensagem" },
     {

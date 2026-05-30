@@ -22,14 +22,14 @@ export default function Table({
 }) {
   return (
     <div className="border border-gray-300 rounded-lg place-self-center w-[70%]">
-      <table className="overflow-hidden font-common w-full">
+      <table className="overflow-hidden font-common w-full text-black">
         <thead className="border-b border-black">
           <tr>
             <th className="w-8" />
             {headers.map((header) => (
               <th
                 key={String(header.key)}
-                className="text-left px-4 py-2 font-semibold text-sm"
+                className="text-left  px-4 py-2 font-semibold text-sm"
               >
                 {header.label}
               </th>

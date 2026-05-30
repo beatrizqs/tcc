@@ -36,14 +36,14 @@ export default function TextualExplanation({
             >
               <div className=" flex flex-col gap-5 bg-white p-5 rounded-md h-full">
                 <div className="flex flex-row justify-between items-center">
-                  <h2 className="font-title text-blue text-lg">Explicação</h2>
+                  <h2 className="font-title text-blue text-lg 2xl:text-xl">Explicação</h2>
                   <X
                     size={24}
                     className="hover:text-red-500 cursor-pointer transition ease-in-out"
                     onClick={onClose}
                   />
                 </div>
-                <p className="font-common text-base text-justify py-2 pr-2 whitespace-pre-line overflow-auto max-h-[60vh]">
+                <p className="font-common text-base 2xl:text-lg text-justify py-2 pr-2 whitespace-pre-line overflow-auto max-h-[60vh]">
                   {explanation}
                 </p>
               </div>

@@ -12,6 +12,7 @@ import {
   COMPRESSION_ALGORITHM,
   COMPRESSION_ALGORITHM_LABELS,
   Design,
+  getRGB,
   IMG_DESIGN,
   IMG_DESIGN_LABELS,
   IMG_REPRESENTATION,
@@ -59,7 +60,7 @@ export default function CompressaoImagens() {
           }}
         >
           {grid.map((value, index) => {
-            const [r, g, b] = PALETTE[value];
+            const [r, g, b] = getRGB(value, IMG_REPRESENTATION.COLORS);
             return (
               <div
                 key={index}

@@ -27,6 +27,7 @@ export default function DecimalBinario() {
   const [currentValue, setCurrentValue] = useState(parseInt(number)); // Result of the division, will be the dividend on the next
   const [animationSession, setAnimationSession] = useState(0); // Differentiate between sessions to avoid reverse animations (layoutId) when restarting
   const [showCurrentRemainder, setShowCurrentRemainder] = useState(false);
+  const [isFinished, setIsFinished] = useState(false); // Manages Layout items when animation is finished early
 
   // Buttons
   const [showExplanation, setShowExplanation] = useState(false);
@@ -74,6 +75,7 @@ export default function DecimalBinario() {
     setHighlight(undefined);
     setIsPaused(false);
     setShowCurrentRemainder(false);
+    setIsFinished(false);
     runAnimation();
   };
 
@@ -84,6 +86,7 @@ export default function DecimalBinario() {
     setHighlight(undefined);
     setShowCurrentRemainder(false);
     setIsRunning(false);
+    setIsFinished(true);
   };
 
   const waitIfPaused = () => {
@@ -132,10 +135,10 @@ export default function DecimalBinario() {
         await waitStep(700, id);
 
         setHighlight("result");
-        await waitStep(500, id);
+        await waitStep(300, id);
 
         setShowCurrentRemainder(true);
-        await waitStep(500, id);
+        await waitStep(300, id);
 
         setCurrentValue(steps[i].result);
         await waitStep(1000, id);
@@ -146,6 +149,7 @@ export default function DecimalBinario() {
       }
 
       setIsRunning(false);
+      setIsFinished(true);
     } catch (error) {
       if ((error as Error).message !== "animation-cancelled") {
         console.error(error);
@@ -158,7 +162,7 @@ export default function DecimalBinario() {
   };
 
   return (
-    <div className="flex flex-col w-full h-[calc(100vh-90px)]">
+    <div className="flex flex-col w-full h-[calc(100vh-90px)] text-black">
       <SidePageTitle title={"Bases numéricas"} href={"/number-bases/params"} />
       <MainPageTitle title="Decimal → Binário" noMargin />
 
@@ -235,7 +239,7 @@ export default function DecimalBinario() {
                 <td className="p-3 border-black border-1 border-t-2 text-black text-center">
                   <div className="h-[40px] overflow-hidden flex items-center justify-center">
                     <AnimatePresence mode="wait">
-                      {currentStep && (
+                      {currentStep && !isFinished && (
                         <motion.div
                           key={`remainder-${currentStep.id}`}
                           initial={{ opacity: 0, y: 0 }}
@@ -382,31 +386,109 @@ export default function DecimalBinario() {
       </div>
 
       {/* Buttons */}
-      <div className={`flex flex-row gap-4 items-center mx-auto  mb-5`}>
-        {isRunning ? (
-          <>
-            <Button
-              text={isPaused ? "Continuar" : "Pausar"}
-              onClick={() => setIsPaused((p) => !p)}
-            />
-            {isPaused && <Button text={"Reiniciar"} onClick={reset} />}
-            {isPaused && <Button text={"Finalizar"} onClick={finish} />}
-          </>
-        ) : (
-          <>
-            <Button
-              text={!currentStep ? "Iniciar" : "Repetir"}
-              onClick={reset}
-            />
-            <Button
-              text="Explicação"
-              onClick={() => {
-                setShowExplanation(true);
-              }}
-            />
-          </>
-        )}
-      </div>
+      <motion.div
+        layout
+        transition={{
+          duration: 0.4,
+          ease: "easeOut",
+        }}
+        className="flex flex-row gap-4 items-center mx-auto mb-5"
+      >
+        <AnimatePresence >
+          {isRunning ? (
+            <>
+              <motion.div
+                layout
+                key="pause"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeOut",
+                }}
+              >
+                <Button
+                  text={isPaused ? "Continuar" : "Pausar"}
+                  onClick={() => setIsPaused((p) => !p)}
+                />
+              </motion.div>
+
+              {isPaused && (
+                <motion.div
+                  layout
+                  key="restart"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <Button text="Reiniciar" onClick={reset} />
+                </motion.div>
+              )}
+
+              {isPaused && (
+                <motion.div
+                  layout
+                  key="finish"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1}}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <Button text="Finalizar" onClick={finish} />
+                </motion.div>
+              )}
+            </>
+          ) : (
+            <>
+              <motion.div
+                layout
+                key="start"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeOut",
+                }}
+              >
+                <Button
+                  text={!currentStep ? "Iniciar" : "Repetir"}
+                  onClick={reset}
+                />
+              </motion.div>
+
+              <motion.div
+                layout
+                key="explanation"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeOut",
+                }}
+              >
+                <Button
+                  text="Explicação"
+                  onClick={() => {
+                    setShowExplanation(true);
+                  }}
+                />
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       <TextualExplanation
         explanation={explanations.numberBases.decimalBinary}

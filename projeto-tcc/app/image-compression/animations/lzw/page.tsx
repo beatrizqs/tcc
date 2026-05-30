@@ -204,8 +204,8 @@ export default function LZW() {
     const compressedSize = (biggerCodeLength ?? 0) * compressedSequence.length;
 
     // Creates sections of the table to help render large number of rows
-    for (let i = 0; i < table.length; i += 14) {
-      sectionedTable.push(table.slice(i, i + 14));
+    for (let i = 0; i < table.length; i += 18) {
+      sectionedTable.push(table.slice(i, i + 18));
     }
 
     return {
@@ -296,13 +296,13 @@ export default function LZW() {
 
         // Highlights the sequence of blocks of the next row
         for (const j in step.pixels) {
-          await waitStep(500, id);
+          await waitStep(300, id);
           localHighlightedPixels = [
             ...localHighlightedPixels,
             step.pixelsIndex[j],
           ];
           setHighlightedPixels(localHighlightedPixels);
-          await waitStep(500, id);
+          await waitStep(300, id);
 
           // Skips last pixel
           if (Number(j) < step.pixels.length - 1 || i === steps.length - 1) {
@@ -322,7 +322,7 @@ export default function LZW() {
 
         await waitStep(800, id);
         // Shows new row for the current sequence of blocks
-        setVisibleRows(step.newRow.code);
+        if (i < steps.length - 1) setVisibleRows(step.newRow.code);
         await waitStep(800, id);
 
         setShowCompressedArray(i);
@@ -354,27 +354,29 @@ export default function LZW() {
   };
 
   return (
-    <div className="flex flex-col w-full h-[calc(100vh-100px)]">
-      <div className="flex flex-col">
-        <SidePageTitle
-          title={"Compressão de imagens"}
-          href={"/image-compression/params"}
-        />
-        <MainPageTitle
-          title="Codificação Lempel-Ziv-Welch"
-          noMargin
-          className="-mt-6 2xl:m-0"
-          sm
-        />
+    <div className="flex flex-col w-full h-[calc(100vh-80px)]">
+      <div className="flex flex-col h-full justify-between">
+        <div className="flex flex-col">
+          <SidePageTitle
+            title={"Compressão de imagens"}
+            href={"/image-compression/params"}
+          />
+          <MainPageTitle
+            title="Codificação Lempel-Ziv-Welch"
+            noMargin
+            className={`${sectionedTable[0].length > 12 && "-mt-8"} 2xl:m-0`}
+            sm
+          />
 
-        <div className={`flex flex-col w-full 2xl:w-[80%] px-8 mt-6 2xl:mt-10 mx-auto`}>
-          <div className="flex flex-row">
-            {/* Image */}
-            <div
-              className={`flex flex-col items-center gap-1 font-title justify-center w-1/4 `}
-            >
-              <div className="w-72 2xl:w-[432px]">
-                <div className="text-base font-semibold text-center">
+          <div
+            className={`flex flex-col w-full 2xl:w-[80%] ${
+              sectionedTable[0].length > 12 ? "mt-4" : "mt-6"
+            } 2xl:mt-10 mx-auto text-black`}
+          >
+            <div className="flex flex-row justify-center items-center 2xl:gap-5">
+              {/* Image */}
+              <div>
+                <div className="text-base 2xl:text-lg font-semibold text-center font-title">
                   Original: {size} x {size} → {size * size} bytes →{" "}
                   {size * size * 8} bits{" "}
                 </div>
@@ -400,10 +402,7 @@ export default function LZW() {
                           const pos = i * size + j;
                           const currPixel: number | ColorIndex = grid[pos];
 
-                          const [r, g, b] =
-                            representation === IMG_REPRESENTATION.COLORS
-                              ? PALETTE[currPixel as ColorIndex]
-                              : [currPixel, currPixel, currPixel];
+                          const [r, g, b] = getRGB(currPixel, representation);
 
                           const highlight = highlightedPixels.includes(pos);
 
@@ -411,9 +410,9 @@ export default function LZW() {
                             <td
                               className={`text-center text-black transition-all ease-in-out duration-100 border-1 border-black outline outline-0 outline-blue outline-offset-0 ${
                                 size === 4
-                                  ? "size-18 2xl:size-[108px]"
+                                  ? "size-18 2xl:size-[90px]"
                                   : size === 8
-                                  ? "size-9 2xl:size-[56px]"
+                                  ? "size-9 2xl:size-[50px]"
                                   : "size-6 2xl:size-[36px]"
                               } ${
                                 highlight && "outline-2 outline-offset-[-2px] "
@@ -433,188 +432,296 @@ export default function LZW() {
                     ))}
                   </tbody>
                 </table>
+              </div>
 
-                <motion.div className="flex flex-row flex-wrap w-full gap-[2px]">
-                  {compressedSequence.map((code, i) => {
+              {/* Tables and result*/}
+              <motion.div
+                transition={{ ease: "easeInOut", duration: 0.5 }}
+                className={`flex flex-row  justify-center 2xl:gap-8 ${
+                  sectionedTable.length === 1
+                    ? "px-8"
+                    : sectionedTable.length === 2
+                    ? "px-5"
+                    : " px-3"
+                }`}
+              >
+                {/* Tables */}
+                <AnimatePresence>
+                  {sectionedTable.map((table, i) => {
                     return (
                       <motion.div
-                        initial={{ opacity: 0, y: 3 }}
+                        transition={{ ease: "easeInOut", duration: 0.5 }}
+                        initial={{ opacity: 0, y: 0 }}
                         animate={
-                          showCompressedArray >= i
+                          visibleRows >= table[0].code || i === 0
                             ? { opacity: 1, y: 0 }
-                            : { opacity: 0, y: 3 }
+                            : { opacity: 0, y: 0 }
                         }
-                        key={`code-${code}-${i}`}
-                        className={`font-title text-sm 2xl:text-base transform ease-in-out duration-300 ${
-                          showCompressedArray === i && "text-pink"
-                        }`}
+                        exit={{ opacity: 0, y: 0 }}
+                        key={`table-${i}`}
+                        className="border-1 border-black rounded-md h-fit mx-2"
                       >
-                        {code}
+                        <table className=" text-base 2xl:text-lg font-common ">
+                          {/* Headers */}
+                          <thead>
+                            <tr className="font-title border-b-2  ">
+                              <td
+                                key={`header-block`}
+                                className={`py-[2px] border-black border-1 text-blue text-center w-[200px] 2xl:w-[300px]`}
+                              >
+                                Sequência
+                              </td>
+                              <td
+                                key={`header-code`}
+                                className={`py-[2px] border-black border-1 text-blue text-center w-[60px]`}
+                              >
+                                Código
+                              </td>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {/* Rows */}
+                            {table.map((row, i) => {
+                              return (
+                                <tr
+                                  key={`huffman-table-row-${i}`}
+                                  className={`justify-center transition-colors ease-in-out duration-300 text-sm h-5 2xl:h-7 ${
+                                    highlightedRow === row && "bg-blue/25"
+                                  } ${
+                                    highlightedCodeRow === row && "bg-pink/25"
+                                  }`}
+                                >
+                                  <td
+                                    key={`cell-block-${i}`}
+                                    className={`border-black border text-blue `}
+                                  >
+                                    <motion.div
+                                      initial={{ opacity: 0, y: 3 }}
+                                      animate={
+                                        visibleRows >= row.code
+                                          ? { opacity: 1, y: 0 }
+                                          : { opacity: 0, y: 3 }
+                                      }
+                                      className="flex flex-row justify-center"
+                                    >
+                                      {row.input.map((block, blockIndex) => {
+                                        const [r, g, b] = getRGB(
+                                          block,
+                                          representation
+                                        );
+                                        return (
+                                          <motion.div
+                                            key={`block-${blockIndex}-row-${i}`}
+                                            style={{
+                                              backgroundColor: `rgb(${r}, ${g}, ${b})`,
+                                            }}
+                                            className={`h-3 w-2 2xl:size-4 mx-[2px] border border-black`}
+                                          />
+                                        );
+                                      })}
+                                    </motion.div>
+                                  </td>
+                                  <td
+                                    key={`cell-frequency-${i}`}
+                                    className={` border-black border text-blue text-center `}
+                                  >
+                                    <motion.div
+                                      initial={{ opacity: 0, y: 3 }}
+                                      animate={
+                                        visibleRows >= row.code
+                                          ? { opacity: 1, y: 0 }
+                                          : { opacity: 0, y: 3 }
+                                      }
+                                    >
+                                      {row.code}
+                                    </motion.div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
                       </motion.div>
                     );
                   })}
-                </motion.div>
-              </div>
+                </AnimatePresence>
+              </motion.div>
             </div>
-
-            {/* Tables and result*/}
-            <motion.div
-              transition={{ ease: "easeInOut", duration: 0.5 }}
-              className="flex flex-row h-full w-3/4 justify-center 2xl:gap-8 px-3"
-            >
-              {/* Tables */}
-              <AnimatePresence>
-                {sectionedTable.map((table, i) => {
-                  return (
-                    <motion.div
-                      transition={{ ease: "easeInOut", duration: 0.5 }}
-                      initial={{ opacity: 0, y: 0 }}
-                      animate={
-                        (currentStep &&
-                          currentStep.newRow.code >= table[0].code) ||
-                        i === 0
-                          ? { opacity: 1, y: 0 }
-                          : { opacity: 0, y: 0 }
-                      }
-                      exit={{ opacity: 0, y: 0 }}
-                      key={`table-${i}`}
-                      className="border-1 border-black rounded-md h-fit mx-2"
-                    >
-                      <table className=" text-base 2xl:text-lg font-common ">
-                        {/* Headers */}
-                        <thead>
-                          <tr className="font-title border-b-2 ">
-                            <td
-                              key={`header-block`}
-                              className={`p-1 border-black border-1 text-blue text-center w-[200px] 2xl:w-[300px]`}
-                            >
-                              Sequência
-                            </td>
-                            <td
-                              key={`header-code`}
-                              className={`p-1 border-black border-1 text-blue text-center w-[50px]`}
-                            >
-                              Código
-                            </td>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {/* Rows */}
-                          {table.map((row, i) => {
-                            return (
-                              <tr
-                                key={`huffman-table-row-${i}`}
-                                className={`justify-center transition-colors ease-in-out duration-300 text-sm h-6 2xl:h-8 ${
-                                  highlightedRow === row && "bg-blue/25"
-                                } ${
-                                  highlightedCodeRow === row && "bg-pink/25"
-                                }`}
-                              >
-                                <td
-                                  key={`cell-block-${i}`}
-                                  className={`border-black border text-blue `}
-                                >
-                                  <motion.div
-                                    initial={{ opacity: 0, y: 3 }}
-                                    animate={
-                                      visibleRows >= row.code
-                                        ? { opacity: 1, y: 0 }
-                                        : { opacity: 0, y: 3 }
-                                    }
-                                    className="flex flex-row justify-center"
-                                  >
-                                    {row.input.map((block, blockIndex) => {
-                                      const [r, g, b] = getRGB(
-                                        block,
-                                        representation
-                                      );
-                                      return (
-                                        <motion.div
-                                          key={`block-${blockIndex}-row-${i}`}
-                                          style={{
-                                            backgroundColor: `rgb(${r}, ${g}, ${b})`,
-                                          }}
-                                          className={`h-3 w-2 2xl:size-5 mx-[2px]`}
-                                        />
-                                      );
-                                    })}
-                                  </motion.div>
-                                </td>
-                                <td
-                                  key={`cell-frequency-${i}`}
-                                  className={` border-black border text-blue text-center `}
-                                >
-                                  <motion.div
-                                    initial={{ opacity: 0, y: 3 }}
-                                    animate={
-                                      visibleRows >= row.code
-                                        ? { opacity: 1, y: 0 }
-                                        : { opacity: 0, y: 3 }
-                                    }
-                                  >
-                                    {row.code}
-                                  </motion.div>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </motion.div>
           </div>
+        </div>
 
+        {/* Codes */}
+        <motion.div className="flex flex-row items-center w-full gap-x-[2px] justify-center font-title text-lg 2xl:text-xl">
+          <motion.div
+            initial={{ opacity: 0, y: 3 }}
+            animate={
+              showCompressedArray >= 0
+                ? { opacity: 1, y: 0 }
+                : { opacity: 0, y: 3 }
+            }
+            className="mr-2"
+          >
+            Sequência comprimida:{" "}
+          </motion.div>
+          {compressedSequence.map((code, i) => {
+            return (
+              <motion.div
+                initial={{ opacity: 0, y: 3 }}
+                animate={
+                  showCompressedArray >= i
+                    ? { opacity: 1, scale: 1 }
+                    : { opacity: 0, scale: 1.5 }
+                }
+                key={`code-${code}-${i}`}
+                className={`  transform ease-in-out duration-300 mb-1 ${
+                  showCompressedArray === i && isRunning && "text-pink"
+                }`}
+              >
+                {code}
+              </motion.div>
+            );
+          })}
+
+          {/* Result */}
           <motion.div
             initial={{ opacity: 0, y: 0 }}
             animate={showResult ? { opacity: 1, y: 0 } : { opacity: 0, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="flex flex-row items-center justify-center gap-2 mt-1 2xl:my-6"
+            className="flex flex-row items-center justify-center gap-2 mx-2 2xl:my-6"
           >
-            <p className="text-base 2xl:text-lg font-title text-center text-black">
-              {compressedSize / compressedSequence.length} bits necessários para
-              representar cada código →
+            <p className="text-lg 2xl:text-xl font-title text-center text-black">
+              →
             </p>
-            <div className="text-base 2xl:text-xl border border-blue rounded-md py-1 px-3 text-blue font-title font-semibold">
+            <div className="text-lg 2xl:text-xl border border-blue rounded-md py-1 px-3 text-blue font-title font-semibold">
               {compressedSize} bits (-
-              {100 - Math.round((compressedSize * 100) / (size * size * 8))}%)
+              {100 - Math.round((compressedSize * 100) / (size * size * 8))}
+              %)
             </div>
           </motion.div>
-        </div>
+        </motion.div>
 
         {/* Buttons */}
-        <div className={`flex flex-row gap-4 items-center mx-auto mt-4 mb-5`}>
-          {isRunning ? (
-            <>
-              <Button
-                text={isPaused ? "Continuar" : "Pausar"}
-                onClick={() => setIsPaused((p) => !p)}
-              />
-              <Button
-                text={speed === 1 ? "Acelerar" : "Desacelerar"}
-                onClick={() => setSpeed(speed === 1 ? 2 : 1)}
-              />
-              {isPaused && <Button text={"Reiniciar"} onClick={reset} />}
-              {isPaused && <Button text={"Finalizar"} onClick={finish} />}
-            </>
-          ) : (
-            <>
-              <Button
-                text={!currentStep ? "Iniciar" : "Repetir"}
-                onClick={reset}
-              />
-              <Button
-                text="Explicação"
-                onClick={() => {
-                  setShowExplanation(true);
-                }}
-              />
-            </>
-          )}
-        </div>
+        <motion.div
+          layout
+          transition={{
+            duration: 0.4,
+            ease: "easeOut",
+          }}
+          className="flex flex-row gap-4 items-center mx-auto"
+        >
+          <AnimatePresence>
+            {isRunning ? (
+              <>
+                <motion.div
+                  layout
+                  key="pause"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                >
+                  <Button
+                    text={isPaused ? "Continuar" : "Pausar"}
+                    onClick={() => setIsPaused((p) => !p)}
+                  />
+                </motion.div>
+
+                <motion.div
+                  layout
+                  key="speed"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                >
+                  <Button
+                    text={speed === 1 ? "Acelerar" : "Desacelerar"}
+                    onClick={() => setSpeed(speed === 1 ? 2 : 1)}
+                  />
+                </motion.div>
+
+                {isPaused && (
+                  <motion.div
+                    layout
+                    key="restart"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <Button text="Reiniciar" onClick={reset} />
+                  </motion.div>
+                )}
+
+                {isPaused && (
+                  <motion.div
+                    layout
+                    key="finish"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <Button text="Finalizar" onClick={finish} />
+                  </motion.div>
+                )}
+              </>
+            ) : (
+              <>
+                <motion.div
+                  layout
+                  key="start"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                >
+                  <Button
+                    text={!currentStep ? "Iniciar" : "Repetir"}
+                    onClick={reset}
+                  />
+                </motion.div>
+
+                <motion.div
+                  layout
+                  key="explanation"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                >
+                  <Button
+                    text="Explicação"
+                    onClick={() => {
+                      setShowExplanation(true);
+                    }}
+                  />
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
 
       <TextualExplanation

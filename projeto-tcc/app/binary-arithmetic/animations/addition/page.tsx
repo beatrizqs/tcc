@@ -5,7 +5,7 @@ import MainPageTitle from "@/components/MainPageTitle";
 import SidePageTitle from "@/components/SidePageTitle";
 import TextualExplanation from "@/components/TextualExplanation";
 import { explanations } from "@/utils/explanations";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -263,6 +263,7 @@ export default function Addition() {
                     </div>
                   ))}
                 </div>
+
                 {/* Sum table */}
                 <div className="border-1 border-black rounded-md ">
                   <table className=" text-2xl 2xl:text-4xl">
@@ -336,7 +337,10 @@ export default function Addition() {
                               >
                                 {step.result.length === 2 &&
                                   currentStep &&
-                                  currentStep.index === step.index && (
+                                  currentStep.index === step.index &&
+                                  (!carry ||
+                                    carry.originIndex !== step.index ||
+                                    carry.render !== "top") && (
                                     <motion.div
                                       layoutId={`carry-${step.index}`}
                                       transition={{
@@ -363,77 +367,172 @@ export default function Addition() {
             </div>
 
             {/* Rules table */}
-            {showRules && (
-              <div className="lg:flex flex-col hidden border-1 border-blue rounded py-3 px-5 2xl:px-7 2xl:py-5  text-center  w-fit absolute 2xl:right-1/4 md:right-16 top-1/2 -translate-y-1/2">
-                <p className="text-xl 2xl:text-2xl text-blue font-semibold mb-5 font-title">
-                  Regras de cálculo
-                </p>
-                <div className="flex flex-col gap-3">
-                  {Object.entries(RULES).map(([key, value]) => (
-                    <div
-                      key={key}
-                      className={`border border-blue rounded-md ${
-                        highlightedRule === key && "bg-blue text-white"
-                      } transition ease-in-out duration-300 flex flex-row  w-fit px-2 py-1  my-1 text-lg 2xl:text-xl items-center mx-auto tracking-widest`}
-                    >
-                      {value}
-                    </div>
-                  ))}
-                </div>
+            <motion.div
+              initial={{ opacity: 0, y: 3 }}
+              animate={showRules ? { opacity: 1, y: 0 } : { opacity: 0, y: 3 }}
+              transition={{ duration: 0.3 }}
+              className="lg:flex flex-col hidden border-1 border-blue rounded py-3 px-5 2xl:px-7 2xl:py-5  text-center  w-fit absolute 2xl:right-1/4 md:right-16 top-1/2 -translate-y-1/2"
+            >
+              <p className="text-xl 2xl:text-2xl text-blue font-semibold mb-5 font-title">
+                Regras de cálculo
+              </p>
+              <div className="flex flex-col gap-3">
+                {Object.entries(RULES).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className={`border border-blue rounded-md ${
+                      highlightedRule === key && "bg-blue text-white"
+                    } transition ease-in-out duration-300 flex flex-row  w-fit px-2 py-1  my-1 text-lg 2xl:text-xl items-center mx-auto tracking-widest`}
+                  >
+                    {value}
+                  </div>
+                ))}
               </div>
-            )}
+            </motion.div>
           </div>
 
           {/* Result */}
-          {showResult && (
-            <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.3 }}
-              className="flex flex-row gap-3 text-black text-2xl 2xl:text-4xl mx-auto font-title font-bold items-center "
-            >
-              <p>
-                {value1} + {value2} ={" "}
-              </p>
-              <div className="border border-blue rounded-md py-1 px-3 text-blue">
-                {(parseInt(value1, 2) + parseInt(value2, 2)).toString(2)}
-              </div>
-            </motion.div>
-          )}
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={showResult ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+            className="flex flex-row gap-3 text-black text-2xl 2xl:text-4xl mx-auto font-title font-bold items-center "
+          >
+            <p>
+              {value1} + {value2} ={" "}
+            </p>
+            <div className="border border-blue rounded-md py-1 px-3 text-blue">
+              {(parseInt(value1, 2) + parseInt(value2, 2)).toString(2)}
+            </div>
+          </motion.div>
         </div>
 
         {/* Buttons */}
-        <div className={`flex flex-row gap-4 items-center mx-auto  mb-5`}>
-          {isRunning ? (
-            <>
+        <motion.div
+          layout
+          transition={{
+            duration: 0.4,
+            ease: "easeOut",
+          }}
+          className="flex flex-row gap-4 items-center mx-auto mb-5"
+        >
+          <AnimatePresence>
+            {isRunning ? (
+              <>
+                <motion.div
+                  layout
+                  key="pause"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                >
+                  <Button
+                    text={isPaused ? "Continuar" : "Pausar"}
+                    onClick={() => setIsPaused((p) => !p)}
+                  />
+                </motion.div>
+
+                {isPaused && (
+                  <motion.div
+                    layout
+                    key="restart"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <Button text="Reiniciar" onClick={reset} />
+                  </motion.div>
+                )}
+
+                {isPaused && (
+                  <motion.div
+                    layout
+                    key="finish"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <Button text="Finalizar" onClick={finish} />
+                  </motion.div>
+                )}
+              </>
+            ) : (
+              <>
+                <motion.div
+                  layout
+                  key="start"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                >
+                  <Button
+                    text={!currentStep ? "Iniciar" : "Repetir"}
+                    onClick={reset}
+                  />
+                </motion.div>
+
+                <motion.div
+                  layout
+                  key="explanation"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                >
+                  <Button
+                    text="Explicação"
+                    onClick={() => {
+                      setShowExplanation(true);
+                    }}
+                  />
+                </motion.div>
+              </>
+            )}
+            <motion.div
+              layout
+              key="rules"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{
+                duration: 0.3,
+                ease: "easeOut",
+              }}
+            >
               <Button
-                text={isPaused ? "Continuar" : "Pausar"}
-                onClick={() => setIsPaused((p) => !p)}
-              />
-              {isPaused && <Button text={"Reiniciar"} onClick={reset} />}
-              {isPaused && <Button text={"Finalizar"} onClick={finish} />}
-            </>
-          ) : (
-            <>
-              <Button
-                text={!currentStep ? "Iniciar" : "Repetir"}
-                onClick={reset}
-              />
-              <Button
-                text="Explicação"
+                text={
+                  showRules
+                    ? "Esconder regras de cálculo"
+                    : "Mostrar regras de cálculo"
+                }
                 onClick={() => {
-                  setShowExplanation(true);
+                  setShowRules(!showRules);
                 }}
               />
-            </>
-          )}
-          <Button
-            text={`${showRules ? "Esconder" : "Mostrar"} regras de cálculo`}
-            onClick={() => {
-              setShowRules(!showRules);
-            }}
-          />
-        </div>
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
       </div>
 
       <TextualExplanation

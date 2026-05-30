@@ -16,7 +16,7 @@ export default function Header() {
 
         <nav className="flex items-center gap-6 font-common font-light">
           <Link
-            href="/number-bases"
+            href="/number-bases/params"
             className={`text-xs text-white hover:underline underline-offset-6 transform ${
               pathname.includes("/number-bases") && "underline"
             }`}
@@ -25,7 +25,7 @@ export default function Header() {
           </Link>
 
           <Link
-            href="/binary-arithmetic"
+            href="/binary-arithmetic/params"
             className={`text-xs text-white hover:underline underline-offset-6 transform ${
               pathname.includes("/binary-arithmetic") && "underline"
             }`}
@@ -34,7 +34,7 @@ export default function Header() {
           </Link>
 
           <Link
-            href="/image-compression"
+            href="/image-compression/params"
             className={`text-xs text-white hover:underline underline-offset-6 transform ${
               pathname.includes("/image-compression") && "underline"
             }`}
@@ -43,7 +43,7 @@ export default function Header() {
           </Link>
 
           <Link
-            href="/cryptography"
+            href="/cryptography/params"
             className={`text-xs text-white hover:underline underline-offset-6 transform ${
               pathname.includes("/cryptography") && "underline"
             }`}

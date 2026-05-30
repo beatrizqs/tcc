@@ -16,7 +16,7 @@ export default function Input({
 }: InputProps) {
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full text-black">
       <p className={`font-common text-sm font-semibold mb-2 ${disabled && "text-gray-600"} min-w-[250px]`}>{label}</p>
       <input
         {...props}

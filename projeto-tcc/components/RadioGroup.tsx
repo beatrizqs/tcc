@@ -22,7 +22,7 @@ export default function RadioComponent({
   orientation?: "row" | "column";
 }) {
   return (
-    <FormControl className="w-full min-w-0">
+    <FormControl className="w-full min-w-0 text-black">
       <RadioGroup
         row={orientation === "row"}
         value={value}
@@ -37,7 +37,7 @@ export default function RadioComponent({
           return (
             <div
               key={option.value}
-              className={`flex ${
+              className={`flex  ${
                 type == "image" ? "flex-col" : "flex-row flex-row-reverse"
               } items-center `}
               onClick={() => onChange(option.value)}

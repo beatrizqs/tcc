@@ -5,7 +5,7 @@ import MainPageTitle from "@/components/MainPageTitle";
 import SidePageTitle from "@/components/SidePageTitle";
 import TextualExplanation from "@/components/TextualExplanation";
 import { explanations } from "@/utils/explanations";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CaretRight } from "phosphor-react";
@@ -56,7 +56,7 @@ const Complement2 = ({
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <h3
-        className={`flex text-xl font-semibold ${
+        className={`flex text-xl 2xl:text-2xl font-semibold ${
           redTitle ? "text-red" : "text-black"
         }`}
       >
@@ -68,7 +68,7 @@ const Complement2 = ({
         {/* Expanded */}
         <motion.div
           layout
-          className="flex p-2 border-1 border-blue rounded-md text-xl text-blue font-semibold "
+          className="flex p-2 border-1 border-blue rounded-md text-xl 2xl:text-2xl text-blue font-semibold "
         >
           {value}
         </motion.div>
@@ -92,7 +92,7 @@ const Complement2 = ({
             show && show.inverted ? { opacity: 1, y: 0 } : { opacity: 0, y: 3 }
           }
           transition={{ delay: shouldDelay ? 0.7 : 0 }}
-          className="flex p-2 border-1 border-blue rounded-md text-xl text-blue font-semibold"
+          className="flex p-2 border-1 border-blue rounded-md text-xl 2xl:text-2xl text-blue font-semibold"
         >
           {inverted}
         </motion.div>
@@ -116,7 +116,7 @@ const Complement2 = ({
             show && show.result ? { opacity: 1, y: 0 } : { opacity: 0, y: 3 }
           }
           transition={{ delay: shouldDelay ? 0.7 : 0 }}
-          className="flex p-2 border-1 border-blue rounded-md text-xl text-blue font-semibold"
+          className="flex p-2 border-1 border-blue rounded-md text-xl 2xl:text-2xl text-blue font-semibold"
         >
           {result}
         </motion.div>
@@ -236,20 +236,24 @@ export default function Subtraction() {
 
   const reversedSteps = [...steps].reverse(); // Steps are ordered chronologically by operations; they are reversed to render correctly in the table
 
+  const isNegativeResult =
+    result[0] === "1" &&
+    !(result.length > value1Expanded.length && result[1] === "0");
+
   const reset = () => {
-    setCurrentStep(undefined);
-    setHighlighted({ upper: false, lower: false });
+    setShowResult(false);
     setShowSum(false);
-    setCarry(undefined);
-    setDiscardOverflow(false);
     setShowNumberExpansion(false);
     setShowComplement2({ show: false, inverted: false, result: false });
-    setShowSumOperation(false);
-    setHighlightSignBit(false);
     setShowResultComplement2({ show: false, inverted: false, result: false });
+    setShowSumOperation(false);
+    setHighlighted({ upper: false, lower: false });
+    setCarry(undefined);
+    setDiscardOverflow(false);
+    setHighlightSignBit(false);
     setIsPaused(false);
-    setShowResult(false);
     setShouldDelay(true);
+    setCurrentStep(undefined);
     runAnimation();
   };
 
@@ -405,6 +409,8 @@ export default function Subtraction() {
         }
       }
 
+      await waitStep(600, id);
+
       if (result) setIsRunning(false);
       setShowResult(true);
     } catch (error) {
@@ -427,7 +433,7 @@ export default function Subtraction() {
         />
         <MainPageTitle title="Subtração binária" noMargin className="mt-5" />
 
-        <div className="flex flex-col  w-full  flex-1 font-title gap-10 my-10 2xl:my-16 2xl:gap-16 items-center">
+        <div className="flex flex-col  w-full  flex-1 font-title gap-10 my-10 2xl:my-16 2xl:gap-16 2xl:max-w-[60%] mx-auto items-center">
           <motion.div
             layout
             className={`flex flex-row items-center w-full gap-5 justify-center max-w-[90%]`}
@@ -435,7 +441,7 @@ export default function Subtraction() {
             {/* Number formatting and complement of 2 */}
             <motion.div
               layout
-              className={`w-1/2 flex flex-col gap-10 font-title justify-center`}
+              className={`w-1/2 flex flex-col gap-10 2xl:gap-16 font-title justify-center`}
             >
               {/* Number expansion */}
               <motion.div
@@ -445,7 +451,7 @@ export default function Subtraction() {
                 <motion.div
                   layout
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className="flex p-2 border-1 border-black rounded-md text-xl text-black font-semibold"
+                  className="flex p-2 border-1 border-black rounded-md text-xl 2xl:text-2xl text-black font-semibold"
                 >
                   {showNumberExpansion ? value1Expanded : value1}
                 </motion.div>
@@ -454,7 +460,7 @@ export default function Subtraction() {
 
                 <motion.div
                   layout
-                  className={`flex p-2 border-1 border-black rounded-md text-xl text-black font-semibold `}
+                  className={`flex p-2 border-1 border-black rounded-md text-xl 2xl:text-2xl text-black font-semibold `}
                 >
                   {showNumberExpansion ? value2Expanded : value2}
                 </motion.div>
@@ -517,6 +523,7 @@ export default function Subtraction() {
                       </div>
                     ))}
                   </div>
+
                   {/* Sum table */}
                   <div className="border-1 border-black rounded-md ">
                     <table className=" text-2xl 2xl:text-4xl">
@@ -537,6 +544,7 @@ export default function Subtraction() {
                          } `}
                               >
                                 <motion.span
+                                  initial={{ opacity: 0, y: 3 }}
                                   animate={
                                     showSumOperation
                                       ? { opacity: 1, y: 0 }
@@ -568,6 +576,7 @@ export default function Subtraction() {
                           }`}
                               >
                                 <motion.span
+                                  initial={{ opacity: 0, y: 3 }}
                                   animate={
                                     showSumOperation
                                       ? { opacity: 1, y: 0 }
@@ -621,7 +630,10 @@ export default function Subtraction() {
                                 >
                                   {step.result.length === 2 &&
                                     currentStep &&
-                                    currentStep.index === step.index && (
+                                    currentStep.index === step.index &&
+                                    (!carry ||
+                                      carry.originIndex !== step.index ||
+                                      carry.render !== "top") && (
                                       <motion.div
                                         layoutId={`carry-${step.index}`}
                                         transition={{
@@ -651,9 +663,9 @@ export default function Subtraction() {
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={
-                  showResult ? { opacity: 1, y: 0 } : { opacity: 0, y: 3 }
+                  showResult ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }
                 }
-                transition={{ delay: isRunning ? 0.3 : 0, duration: 0.3 }}
+                transition={{ duration: 0.3 }}
                 className="flex flex-row gap-3 text-black text-2xl 2xl:text-4xl mx-auto font-title font-bold items-center "
               >
                 <p>
@@ -664,7 +676,7 @@ export default function Subtraction() {
                 </div>
                 <p>=</p>
                 <div className="border border-blue rounded-md py-1 px-3 text-blue">
-                  {highlightSignBit
+                  {isNegativeResult
                     ? `-${parseInt(resultComplement2.result, 2)}`
                     : parseInt(result, 2)}
                 </div>
@@ -674,31 +686,109 @@ export default function Subtraction() {
         </div>
 
         {/* Buttons */}
-        <div className={`flex flex-row gap-4 items-center mx-auto  mb-5`}>
-          {isRunning ? (
-            <>
-              <Button
-                text={isPaused ? "Continuar" : "Pausar"}
-                onClick={() => setIsPaused((p) => !p)}
-              />
-              {isPaused && <Button text={"Reiniciar"} onClick={reset} />}
-              {isPaused && <Button text={"Finalizar"} onClick={finish} />}
-            </>
-          ) : (
-            <>
-              <Button
-                text={!currentStep ? "Iniciar" : "Repetir"}
-                onClick={reset}
-              />
-              <Button
-                text="Explicação"
-                onClick={() => {
-                  setShowExplanation(true);
-                }}
-              />
-            </>
-          )}
-        </div>
+        <motion.div
+          layout
+          transition={{
+            duration: 0.4,
+            ease: "easeOut",
+          }}
+          className="flex flex-row gap-4 items-center mx-auto mb-5"
+        >
+          <AnimatePresence>
+            {isRunning ? (
+              <>
+                <motion.div
+                  layout
+                  key="pause"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                >
+                  <Button
+                    text={isPaused ? "Continuar" : "Pausar"}
+                    onClick={() => setIsPaused((p) => !p)}
+                  />
+                </motion.div>
+
+                {isPaused && (
+                  <motion.div
+                    layout
+                    key="restart"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <Button text="Reiniciar" onClick={reset} />
+                  </motion.div>
+                )}
+
+                {isPaused && (
+                  <motion.div
+                    layout
+                    key="finish"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <Button text="Finalizar" onClick={finish} />
+                  </motion.div>
+                )}
+              </>
+            ) : (
+              <>
+                <motion.div
+                  layout
+                  key="start"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                >
+                  <Button
+                    text={!currentStep ? "Iniciar" : "Repetir"}
+                    onClick={reset}
+                  />
+                </motion.div>
+
+                <motion.div
+                  layout
+                  key="explanation"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                  }}
+                >
+                  <Button
+                    text="Explicação"
+                    onClick={() => {
+                      setShowExplanation(true);
+                    }}
+                  />
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
 
       <TextualExplanation
