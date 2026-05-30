@@ -17,7 +17,6 @@ import {
   IMG_DESIGN_LABELS,
   IMG_REPRESENTATION,
   IMG_REPRESENTATION_LABELS,
-  PALETTE,
   Representation,
 } from "@/utils/image-compression";
 import { useRouter } from "next/navigation";
