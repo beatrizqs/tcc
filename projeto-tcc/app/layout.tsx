@@ -17,8 +17,9 @@ const barlow = Barlow({
 });
 
 export const metadata: Metadata = {
-  title: "Lorem Ipsum",
-  description: "Trabalho de Conclusão de Curso de Beatriz de Quadros Schmitt, 2026",
+  title: "Insight",
+  description:
+    "Trabalho de Conclusão de Curso de Beatriz de Quadros Schmitt, 2026",
 };
 
 export default function RootLayout({
@@ -41,7 +42,6 @@ export default function RootLayout({
           <main className="pt-14 pb-6 px-3 md:px-6 min-h-screen">
             {children}
           </main>
-
         </SettingsProvider>
       </body>
     </html>

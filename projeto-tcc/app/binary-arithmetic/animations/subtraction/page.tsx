@@ -190,9 +190,14 @@ export default function Subtraction() {
   const [value1Expanded, value2Expanded] = formatNumbers();
 
   const value2Complement2 = complement2(value2Expanded);
-  const result = (
+  const rawResult = (
     parseInt(value1Expanded, 2) + parseInt(value2Complement2.result, 2)
   ).toString(2);
+  
+  const result =
+    rawResult.length > value1Expanded.length
+      ? rawResult.slice(1)
+      : rawResult;
 
   const resultComplement2 = complement2(result);
 

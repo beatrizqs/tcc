@@ -10,8 +10,11 @@ export default function Header() {
   return (
     <header className="fixed top-0 w-full shadow-md bg-linear-to-r from-blue to-purple hidden md:block z-100">
       <div className="mx-auto px-6 py-3 flex items-center justify-between">
-        <Link href="/" className="text-base font-semibold text-white font-title">
-          Lorem Ipsum
+        <Link
+          href="/"
+          className="text-base font-semibold text-white font-title"
+        >
+          Insight
         </Link>
 
         <nav className="flex items-center gap-6 font-common font-light">
@@ -52,11 +55,14 @@ export default function Header() {
           </Link>
 
           <Link href="/settings">
-            <SlidersHorizontal size={20} weight="fill" className="text-white ml-6" />
+            <SlidersHorizontal
+              size={20}
+              weight="fill"
+              className="text-white ml-6"
+            />
           </Link>
         </nav>
       </div>
     </header>
   );
 }
-

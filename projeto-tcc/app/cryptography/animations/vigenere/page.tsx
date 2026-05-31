@@ -194,7 +194,9 @@ export default function Vigenere() {
                           <td
                             key={`${char}-${i}`}
                             className={`p-3 transition ease-in-out border-black border-1 text-black ${
-                              currentStep?.index === i && "bg-blue/25"
+                              currentStep?.index === i &&
+                              isRunning &&
+                              "bg-blue/25"
                             }`}
                           >
                             {char}
@@ -210,7 +212,9 @@ export default function Vigenere() {
                           <td
                             key={`${char}-${i}`}
                             className={`p-3 transition ease-in-out border-black border-1 text-black ${
-                              currentStep?.index === i && "bg-blue/25"
+                              currentStep?.index === i &&
+                              isRunning &&
+                              "bg-blue/25"
                             }`}
                           >
                             {char}
@@ -378,7 +382,9 @@ export default function Vigenere() {
                   {ALPHABET_ARRAY.map((char, i) => (
                     <th
                       className={`size-[20px] 2xl:size-7 text-center text-black transition ease-in-out delay-100 ${
-                        currentStep?.plaintext.index === i && "text-blue"
+                        currentStep?.plaintext.index === i &&
+                        isRunning &&
+                        "text-blue"
                       }`}
                       key={char}
                     >
@@ -393,7 +399,7 @@ export default function Vigenere() {
                   <tr key={row}>
                     <th
                       className={`size-[20px] 2xl:size-7 text-center text-black transition ease-in-out delay-100 ${
-                        currentStep?.key.index === i && "text-blue"
+                        currentStep?.key.index === i && isRunning && "text-blue"
                       }`}
                     >
                       {row}
@@ -404,10 +410,12 @@ export default function Vigenere() {
                         className={`text-center text-black transition ease-in-out delay-100 border-1 border-black ${
                           (currentStep?.key.index === i ||
                             currentStep?.plaintext.index === j) &&
+                          isRunning &&
                           "bg-blue/25"
                         } ${
                           currentStep?.key.index === i &&
                           currentStep?.plaintext.index === j &&
+                          isRunning &&
                           "bg-blue/75 text-white"
                         }`}
                         key={j}
